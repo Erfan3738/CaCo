@@ -135,9 +135,9 @@ def main_worker(args):
         else:
 
             augmentation1 = [
-                    transforms.RandomResizedCrop(32, scale=(0.2, 1.)),
+                    transforms.RandomResizedCrop(32),
                     transforms.RandomHorizontalFlip(),
-                    transforms.RandomCrop(32, padding=4),
+                    
                     transforms.RandomApply([
                         transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
                     ], p=0.8),
@@ -147,7 +147,7 @@ def main_worker(args):
                 ]
 
             augmentation2 = [
-                    transforms.RandomResizedCrop(32, scale=(0.2, 1.)),
+                    transforms.RandomResizedCrop(32),
                     transforms.RandomHorizontalFlip(),
                     transforms.RandomApply([
                         transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
