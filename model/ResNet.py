@@ -741,8 +741,8 @@ class PyramidNet(nn.Module):
 
         super(PyramidNet, self).__init__()
 
-        self.alpha = 200
-        self.depth = 50
+        self.alpha = 48
+        self.depth = 110
         self.inplanes = 16
         
         if block == Bottleneck1:
