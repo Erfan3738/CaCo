@@ -17,14 +17,17 @@ class TwoCropsTransform:
 
 class TwoCropsTransform2:
     """Take two random crops of one image as the query and key."""
-
-    def __init__(self, base_transform1,base_transform2):
+    
+    def __init__(self, base_transform1, base_transform2):
+        if not callable(base_transform1) or not callable(base_transform2):
+            raise TypeError("Transforms must be callable (e.g., transforms.Compose([...]))")
+            
         self.base_transform1 = base_transform1
         self.base_transform2 = base_transform2
 
     def __call__(self, x):
-        q = self.base_transform1(x)
-        k = self.base_transform2(x)
+        q = self.base_transform1(x)  # Apply first augmentation
+        k = self.base_transform2(x)  # Apply second augmentation
         return [q, k]
 
 class GaussianBlur(object):
