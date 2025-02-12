@@ -135,7 +135,7 @@ def main_worker(args):
                 traindir, multi_transform)
         else:
 
-            augmentation1 = [
+            augmentation1 = transforms.Compose([
                     transforms.RandomResizedCrop(96, scale=(0.2, 1.0)),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
@@ -146,9 +146,9 @@ def main_worker(args):
                     transforms.GaussianBlur(kernel_size=9, sigma=(0.1, 2.0)),
                     transforms.ToTensor(),
                     transforms.Normalize(mean=[0.4467, 0.4398, 0.4066], std=[0.2603, 0.2566, 0.2713])
-                ]
+                ])
 
-            augmentation2 = [
+            augmentation2 = transforms.Compose([
                     transforms.RandomResizedCrop(96, scale=(0.2, 1.0)),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
@@ -159,7 +159,7 @@ def main_worker(args):
                     transforms.GaussianBlur(kernel_size=9, sigma=(0.1, 2.0)),
                     transforms.ToTensor(),
                     transforms.Normalize(mean=[0.4467, 0.4398, 0.4066], std=[0.2603, 0.2566, 0.2713])
-                ]
+                ])
             
             
             train_dataset = STL10(root="./data", split="unlabeled", transform= TwoCropsTransform2(augmentation1, augmentation2), download=True)
