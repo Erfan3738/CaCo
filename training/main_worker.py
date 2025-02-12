@@ -145,7 +145,7 @@ def main_worker(args):
                     transforms.RandomGrayscale(p=0.2),
                     transforms.GaussianBlur(kernel_size=9),
                     transforms.ToTensor(),
-                    transforms.Normalize((0.5,), (0.5,))
+                    transforms.Normalize((0.4465, 0.4418, 0.4026), (0.2608, 0.2571, 0.2721))
                 ])
 
             augmentation2 = transforms.Compose([
@@ -158,7 +158,7 @@ def main_worker(args):
                     transforms.RandomGrayscale(p=0.2),
                     transforms.GaussianBlur(kernel_size=9),
                     transforms.ToTensor(),
-                    transforms.Normalize((0.5,), (0.5,))
+                    transforms.Normalize((0.4465, 0.4418, 0.4026), (0.2608, 0.2571, 0.2721))
                 ])
             
             
