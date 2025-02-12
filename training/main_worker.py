@@ -136,29 +136,29 @@ def main_worker(args):
         else:
 
             augmentation1 = transforms.Compose([
-                    transforms.RandomResizedCrop(96, scale=(0.2, 1.0)),
+                    transforms.RandomResizedCrop(96),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
                     transforms.RandomApply([
-                        transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
+                        transforms.ColorJitter(0.5, 0.5, 0.5, 0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
-                    transforms.GaussianBlur(kernel_size=9, sigma=(0.1, 2.0)),
+                    transforms.GaussianBlur(kernel_size=9),
                     transforms.ToTensor(),
-                    transforms.Normalize(mean=[0.4467, 0.4398, 0.4066], std=[0.2603, 0.2566, 0.2713])
+                    transforms.Normalize((0.5,), (0.5,))
                 ])
 
             augmentation2 = transforms.Compose([
-                    transforms.RandomResizedCrop(96, scale=(0.2, 1.0)),
+                    transforms.RandomResizedCrop(96),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
                     transforms.RandomApply([
-                        transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
+                        transforms.ColorJitter(0.5, 0.5, 0.5, 0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
-                    transforms.GaussianBlur(kernel_size=9, sigma=(0.1, 2.0)),
+                    transforms.GaussianBlur(kernel_size=9),
                     transforms.ToTensor(),
-                    transforms.Normalize(mean=[0.4467, 0.4398, 0.4066], std=[0.2603, 0.2566, 0.2713])
+                    transforms.Normalize((0.5,), (0.5,))
                 ])
             
             
