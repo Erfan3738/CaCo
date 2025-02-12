@@ -120,8 +120,8 @@ def main_worker(args):
     cudnn.benchmark = True
 
     # Data loading code
-    if args.dataset=='ImageNet':
-        traindir = os.path.join(args.data, 'train')
+    if args.dataset=='stl10':
+        #traindir = os.path.join(args.data, 'train')
         normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
                                      std=[0.2023, 0.1994, 0.2010])
         if args.multi_crop:
@@ -135,31 +135,33 @@ def main_worker(args):
         else:
 
             augmentation1 = [
-                    transforms.RandomResizedCrop(32),
-                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomResizedCrop(96, scale=(0.2, 1.0)),
+                    transforms.RandomHorizontalFlip(p=0.5),
                     
                     transforms.RandomApply([
-                        transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
-                    ], p=0.8),
+                        [transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)],p=0.8),
                     transforms.RandomGrayscale(p=0.2),
+                    transforms.GaussianBlur(kernel_size=9, sigma=(0.1, 2.0)),
                     transforms.ToTensor(),
-                    normalize
+                    transforms.Normalize(mean=[0.4467, 0.4398, 0.4066], std=[0.2603, 0.2566, 0.2713])
                 ]
 
             augmentation2 = [
-                    transforms.RandomResizedCrop(32),
-                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomResizedCrop(96, scale=(0.2, 1.0)),
+                    transforms.RandomHorizontalFlip(p=0.5),
+                    
                     transforms.RandomApply([
-                        transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
-                    ], p=0.8),
+                        [transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)],p=0.8),
                     transforms.RandomGrayscale(p=0.2),
+                    transforms.GaussianBlur(kernel_size=9, sigma=(0.1, 2.0)),
                     transforms.ToTensor(),
-                    normalize
+                    transforms.Normalize(mean=[0.4467, 0.4398, 0.4066], std=[0.2603, 0.2566, 0.2713])
                 ]
-            train_dataset = datasets.ImageFolder(
-                    traindir,
-                    TwoCropsTransform2(transforms.Compose(augmentation1),
-                                       transforms.Compose(augmentation2)))
+
+        transform = TwoCropsTransform2(augmentation1, augmentation2)
+
+        
+            train_dataset = STL10(root="./data", split="unlabeled", transform=transform, download=True)
             
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
@@ -169,8 +171,8 @@ def main_worker(args):
             normalize,
         ])
         from data_processing.imagenet import imagenet
-        val_dataset = datasets.ImageFolder(traindir, transform_test)
-        test_dataset = datasets.ImageFolder(testdir, transform_test)
+        val_dataset =STL10(root="./data", split="train", transform=transform_test, download=True)
+        test_dataset = STL10(root="./data", split="test", transform=transform_test, download=True)
 
     else:
         print("We only support ImageNet dataset currently")
