@@ -143,7 +143,7 @@ def main_worker(args):
                         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
-                    transforms.GaussianBlur(kernel_size=9),
+                    #transforms.GaussianBlur(kernel_size=5),
                     transforms.ToTensor(),
                     transforms.Normalize((0.4465, 0.4418, 0.4026), (0.2608, 0.2571, 0.2721))
                 ])
@@ -156,7 +156,7 @@ def main_worker(args):
                         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
-                    transforms.GaussianBlur(kernel_size=9),
+                   # transforms.GaussianBlur(kernel_size=5),
                     transforms.ToTensor(),
                     transforms.Normalize((0.4465, 0.4418, 0.4026), (0.2608, 0.2571, 0.2721))
                 ])
