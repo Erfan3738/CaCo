@@ -71,7 +71,7 @@ def main_worker(args):
 
     model = CaCo(models.__dict__[args.arch], args,
                            args.moco_dim, args.moco_m)
-    
+    print(model.encoder_q)
 
     
     #optimizer = torch.optim.SGD(model.parameters(), init_lr,
