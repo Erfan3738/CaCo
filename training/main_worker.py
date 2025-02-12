@@ -161,10 +161,10 @@ def main_worker(args):
                     transforms.Normalize(mean=[0.4467, 0.4398, 0.4066], std=[0.2603, 0.2566, 0.2713])
                 ]
 
-        transform = TwoCropsTransform2(augmentation1, augmentation2)
+             transform = TwoCropsTransform2(augmentation1, augmentation2)
 
         
-            train_dataset = STL10(root="./data", split="unlabeled", transform=transform, download=True)
+             train_dataset = STL10(root="./data", split="unlabeled", transform=transform, download=True)
             
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
