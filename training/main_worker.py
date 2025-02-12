@@ -20,6 +20,7 @@ from training.train_utils import adjust_learning_rate2,save_checkpoint
 from data_processing.loader import TwoCropsTransform, TwoCropsTransform2,GaussianBlur,Solarize
 from ops.knn_monitor import knn_monitor
 import torch.optim as optim
+from torchvision.datasets import CIFAR10, STL10
 def init_log_path(args,batch_size):
     """
     :param args:
