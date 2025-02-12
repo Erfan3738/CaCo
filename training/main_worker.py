@@ -162,7 +162,7 @@ def main_worker(args):
                 ]
             transform = TwoCropsTransform2(augmentation1, augmentation2)
             
-            train_dataset = STL10(root="./data", split="unlabeled", transform=transform, download=True)
+            train_dataset = STL10(root="./data", split="unlabeled", transform= TwoCropsTransform2(augmentation1, augmentation2), download=True)
             
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
