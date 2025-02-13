@@ -62,7 +62,7 @@ def argparser():
                              'fastest way to use PyTorch for either single node or '
                              'multi node data parallel training')
 
-    parser.add_argument('cos', type=int, default=1)
+    parser.add_argument('--cos', type=int, default=1)
     # moco specific configs:
     parser.add_argument('--moco_dim', default=128, type=int,
                         help='feature dimension (default: 128)')
