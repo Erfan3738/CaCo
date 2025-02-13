@@ -179,7 +179,7 @@ def main_worker(args):
         print("We only support ImageNet dataset currently")
         exit()
     train_loader = DataLoader(train_dataset, shuffle=True, batch_size=args.batch_size,pin_memory=True,num_workers=args.workers,drop_last=True)
-    val_loader = DataLoader(val_dataset, shuffle=False, batch_size=args.knn_batch_size,pin_memory=True,num_workers=args.workers,drop_last=False)
+    val_loader = DataLoader(val_dataset, shuffle=True, batch_size=args.knn_batch_size,pin_memory=True,num_workers=args.workers,drop_last=False)
     test_loader = DataLoader(test_dataset, shuffle=False, batch_size=args.knn_batch_size,pin_memory=True,num_workers=args.workers,drop_last=False)
 
     #init weight for memory bank
