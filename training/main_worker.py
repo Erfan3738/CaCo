@@ -83,7 +83,7 @@ def main_worker(args):
     #optimizer = AdamW(model.parameters())
     #optimizer = LARS(model.parameters(), init_lr,weight_decay=args.weight_decay,momentum=args.momentum)
     
-    optimizer = torch.optim.SGD(model.parameters(), init_lr, args.weight_decay, momentum=0.9)
+    optimizer = torch.optim.SGD(model.parameters(), init_lr, args.weight_decay, args.momentum)
     #optimizer = torch.optim.SGD(model.parameters(), init_lr,
                                 #momentum=args.momentum,
                                 #weight_decay=args.weight_decay)
