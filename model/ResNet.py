@@ -8,7 +8,7 @@ except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 from typing import Type, Any, Callable, Union, List, Optional
 from torchvision.ops import RoIAlign
-
+from functools import partial
 #__all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            #'resnet152', 'resnext50_32x4d', 'resnext101_32x8d',
           # 'wide_resnet50_2', 'wide_resnet101_2']
@@ -33,7 +33,7 @@ class SplitBatchNorm(nn.BatchNorm2d):
             return nn.functional.batch_norm(
                 input, self.running_mean, self.running_var, 
                 self.weight, self.bias, False, self.momentum, self.eps)
-
+norm_layer = partial(SplitBatchNorm, num_splits=8)
 model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
     'resnet34': 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
@@ -70,7 +70,7 @@ class BasicBlock(nn.Module):
         groups: int = 1,
         base_width: int = 64,
         dilation: int = 1,
-        norm_layer: Optional[Callable[..., nn.Module]] = SplitBatchNorm(num_splits=8)
+        norm_layer: Optional[Callable[..., nn.Module]] = norm_layer
     ) -> None:
         super(BasicBlock, self).__init__()
         if norm_layer is None:
@@ -295,7 +295,7 @@ class ResNet(nn.Module):
         groups: int = 1,
         width_per_group: int = 64,
         replace_stride_with_dilation: Optional[List[bool]] = None,
-        norm_layer: Optional[Callable[..., nn.Module]] = SplitBatchNorm(num_splits=8)
+        norm_layer: Optional[Callable[..., nn.Module]] = norm_layer
     ) -> None:
         super(ResNet, self).__init__()
         if norm_layer is None:
