@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 import model.ResNet as models
 from model.CaCo import CaCo, CaCo_PN
 from ops.os_operation import mkdir, mkdir_rank
-from training.train_utils import adjust_learning_rate2,save_checkpoint
+from training.train_utils import adjust_learning_rate2,save_checkpoint,adjust_learning_rate
 from data_processing.loader import TwoCropsTransform, TwoCropsTransform2,GaussianBlur,Solarize
 from ops.knn_monitor import knn_monitor
 import torch.optim as optim
