@@ -25,6 +25,7 @@ import torchvision.datasets as datasets
 import model.ResNet as models
 from ops.os_operation import mkdir
 from torchvision.datasets import CIFAR10
+from torch.utils.data import DataLoader
 
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
