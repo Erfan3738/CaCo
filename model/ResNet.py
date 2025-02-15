@@ -70,7 +70,7 @@ class BasicBlock(nn.Module):
         groups: int = 1,
         base_width: int = 64,
         dilation: int = 1,
-        norm_layer: Optional[Callable[..., nn.Module]] = None
+        norm_layer: Optional[Callable[..., nn.Module]] = norm_layer
     ) -> None:
         super(BasicBlock, self).__init__()
         if norm_layer is None:
