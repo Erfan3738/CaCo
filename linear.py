@@ -274,8 +274,8 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
     end = time.time()
     for i, (images, target) in enumerate(train_loader):
         
-        print("Images shape:", images.shape)  # Should be (batch_size, 3, 32, 32)
-        print("Target shape:", target.shape)
+        #print("Images shape:", images.shape)  # Should be (batch_size, 3, 32, 32)
+        #print("Target shape:", target.shape)
         # measure data loading time
         data_time.update(time.time() - end)
 
@@ -286,7 +286,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
         # compute output
         output = model(images)
         
-        print("Model output shape:", output.shape)  # Expected: (1024, 10)
+        #print("Model output shape:", output.shape)  # Expected: (1024, 10)
 
         loss = criterion(output, target)
 
