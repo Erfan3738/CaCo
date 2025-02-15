@@ -130,7 +130,7 @@ def main_worker(args):
                     state_dict[k[len("encoder_q."):]] = state_dict[k]
                     del state_dict[k]
             args.start_epoch = 0
-            msg = model.load_state_dict(state_dict, strict=False)
+            msg = model.load_state_dict(state_dict, strict=True)
             assert set(msg.missing_keys) == {"%s.weight" % linear_keyword, "%s.bias" % linear_keyword}
 
             print("=> loaded pre-trained model '{}'".format(args.pretrained))
@@ -138,7 +138,7 @@ def main_worker(args):
             print("=> no checkpoint found at '{}'".format(args.pretrained))  
 
     print(model)
-    model.avgpool = nn.AdaptiveAvgPool2d(1)  # Pooling to (batch_size, 512, 1, 1)
+    
 
 
     # infer learning rate before changing batch size
