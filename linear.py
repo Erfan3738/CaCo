@@ -103,7 +103,7 @@ def main_worker(args):
     # create model
     print("=> creating model '{}'".format(args.arch))
     num_classes = 10
-    model = models.__dict__[args.arch](num_classes=num_classes)
+    model = models.__dict__[args.arch](num_classes=num_classes,use_feature=False)
     model.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
     model.maxpool = nn.Identity()
     print(model)
