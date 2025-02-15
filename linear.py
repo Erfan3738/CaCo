@@ -147,8 +147,10 @@ def main_worker(gpu, ngpus_per_node, args):
         torch.distributed.barrier()
     # create model
     print("=> creating model '{}'".format(args.arch))
-    num_classes = 1000
+    num_classes = 10
     model = models.__dict__[args.arch](num_classes=num_classes)
+    model.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
+    model.maxpool = nn.Identity()
     # freeze all layers but the last fc
     for name, param in model.named_parameters():
         if name not in ['fc.weight', 'fc.bias']:
@@ -167,9 +169,9 @@ def main_worker(gpu, ngpus_per_node, args):
             state_dict = checkpoint['state_dict']
             for k in list(state_dict.keys()):
                 # retain only encoder_q up to before the embedding layer
-                if k.startswith('module.encoder_q') and not k.startswith('module.encoder_q.fc'):
+                if k.startswith('encoder_q') and not k.startswith('encoder_q.fc'):
                     # remove prefix
-                    state_dict[k[len("module.encoder_q."):]] = state_dict[k]
+                    state_dict[k[len("encoder_q."):]] = state_dict[k]
                     del state_dict[k]
             args.start_epoch = 0
             msg = model.load_state_dict(state_dict, strict=False)
@@ -269,20 +271,18 @@ def main_worker(gpu, ngpus_per_node, args):
     # Data loading code
     traindir = os.path.join(args.data, 'train')
     valdir = os.path.join(args.data, 'val')
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
+    normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
+                                     std=[0.2023, 0.1994, 0.2010])
 
     train_dataset = datasets.ImageFolder(
         traindir,
         transforms.Compose([
-            transforms.RandomResizedCrop(224),
+            transforms.RandomResizedCrop(32),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize,
         ]))
     transform_test = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
         transforms.ToTensor(),
         normalize,
     ])
