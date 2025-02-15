@@ -331,8 +331,6 @@ def validate(val_loader, model, criterion, args):
                 target = target.cuda(args.gpu, non_blocking=True)
 
             output = model(images)
-            output = concat_all_gather(output)
-            target = concat_all_gather(target)
             acc1, acc5 = accuracy(output, target, topk=(1, 5))
 
             top1.update(acc1.item(), images.size(0))
