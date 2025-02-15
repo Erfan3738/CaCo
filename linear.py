@@ -130,7 +130,7 @@ def main_worker(args):
                     state_dict[k[len("encoder_q."):]] = state_dict[k]
                     del state_dict[k]
             args.start_epoch = 0
-            msg = model.load_state_dict(state_dict, strict=True)
+            msg = model.load_state_dict(state_dict, strict=False)
             assert set(msg.missing_keys) == {"%s.weight" % linear_keyword, "%s.bias" % linear_keyword}
 
             print("=> loaded pre-trained model '{}'".format(args.pretrained))
