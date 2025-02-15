@@ -202,44 +202,36 @@ def main_worker(args):
     valdir = os.path.join(args.data, 'val')
     normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
                                      std=[0.2023, 0.1994, 0.2010])
+    
+    augmentation1 = transforms.Compose([
+                transforms.RandomResizedCrop(32),
+                transforms.RandomHorizontalFlip(p=0.5),
+                    
+                #transforms.RandomApply([
+                #transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1)  # not strengthened
+                    #], p=0.8),
+                #transforms.RandomGrayscale(p=0.2),
+                    #transforms.GaussianBlur(kernel_size=5),
+                transforms.ToTensor(),
+                normalize
+                ])
+    train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=augmentation1)
 
-    train_dataset = datasets.ImageFolder(
-        traindir,
-        transforms.Compose([
-            transforms.RandomResizedCrop(32),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            normalize,
-        ]))
     transform_test = transforms.Compose([
         transforms.ToTensor(),
         normalize,
     ])
-    val_dataset = datasets.ImageFolder(valdir, transform_test)
-    if args.distributed:
-        train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
-        val_sampler = torch.utils.data.distributed.DistributedSampler(
-            val_dataset)  # different gpu forward individual based on its own statistics
-    else:
-        train_sampler = None
-        val_sampler = None
+    val_dataset =CIFAR10(root='./datasets', train=False, download=True, transform=transform_test)
 
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
-        num_workers=args.workers, pin_memory=True, sampler=train_sampler)
-    val_loader = torch.utils.data.DataLoader(
-        val_dataset, sampler=val_sampler,
-        batch_size=args.batch_size, shuffle=(val_sampler is None),
-        # different gpu forward is different, thus it's necessary
-        num_workers=args.workers, pin_memory=True)
+    train_loader = DataLoader(train_dataset, shuffle=True, batch_size=args.batch_size,pin_memory=True,num_workers=args.workers,drop_last=True)
+    val_loader = DataLoader(val_dataset, shuffle=False, batch_size=args.knn_batch_size,pin_memory=True,num_workers=args.workers,drop_last=False)
 
     if args.evaluate:
         validate(val_loader, model, criterion, args)
         return
     log_path = save_dir
     for epoch in range(args.start_epoch, args.epochs):
-        if args.distributed:
-            train_sampler.set_epoch(epoch)
+
         adjust_learning_rate(optimizer, init_lr, epoch, args)
 
         # train for one epoch
@@ -375,8 +367,8 @@ def sanity_check(state_dict, pretrained_weights):
             continue
 
         # name in pretrained model
-        k_pre = 'module.encoder.' + k[len('module.'):] \
-            if k.startswith('module.') else 'module.encoder.' + k
+        k_pre = 'encoder.' + k[len(''):] \
+            if k.startswith('') else 'encoder.' + k
 
         assert ((state_dict[k].cpu() == state_dict_pre[k_pre]).all()), \
             '{} is changed in linear classifier training.'.format(k)
