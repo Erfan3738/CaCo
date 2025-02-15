@@ -271,6 +271,9 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
     model.eval()
     end = time.time()
     for i, (images, target) in enumerate(train_loader):
+        
+        print("Images shape:", images.shape)  # Should be (batch_size, 3, 32, 32)
+        print("Target shape:", target.shape)
         # measure data loading time
         data_time.update(time.time() - end)
 
