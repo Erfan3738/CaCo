@@ -283,6 +283,9 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
 
         # compute output
         output = model(images)
+        
+        print("Model output shape:", output.shape)  # Expected: (1024, 10)
+
         loss = criterion(output, target)
 
         # measure accuracy and record loss
