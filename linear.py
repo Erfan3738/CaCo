@@ -151,6 +151,7 @@ def main_worker(gpu, ngpus_per_node, args):
     model = models.__dict__[args.arch](num_classes=num_classes)
     model.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
     model.maxpool = nn.Identity()
+    print(model)
     # freeze all layers but the last fc
     for name, param in model.named_parameters():
         if name not in ['fc.weight', 'fc.bias']:
