@@ -137,7 +137,7 @@ def main_worker(args):
         else:
             print("=> no checkpoint found at '{}'".format(args.pretrained))  
 
-
+    print(model)
 
     # infer learning rate before changing batch size
     init_lr = args.lr * args.batch_size / 256
