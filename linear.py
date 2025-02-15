@@ -22,7 +22,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-import torchvision.models as models
+import model.ResNet as models
 from ops.os_operation import mkdir
 
 model_names = sorted(name for name in models.__dict__
