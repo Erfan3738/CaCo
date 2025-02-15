@@ -370,7 +370,7 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def _forward_impl(self, x: Tensor,use_feature=True) -> Tensor:
+    def _forward_impl(self, x: Tensor,use_feature=False) -> Tensor:
         # See note [TorchScript super()]
         x = self.conv1(x)
         x = self.bn1(x)
