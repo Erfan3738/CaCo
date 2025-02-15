@@ -138,6 +138,8 @@ def main_worker(args):
             print("=> no checkpoint found at '{}'".format(args.pretrained))  
 
     print(model)
+    model.avgpool = nn.AdaptiveAvgPool2d(1)  # Pooling to (batch_size, 512, 1, 1)
+
 
     # infer learning rate before changing batch size
     init_lr = args.lr * args.batch_size / 256
