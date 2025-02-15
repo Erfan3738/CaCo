@@ -390,7 +390,7 @@ class ResNet(nn.Module):
         return x
 
 
-    def forward(self, x: Tensor,use_feature=True) -> Tensor:
+    def forward(self, x: Tensor,use_feature=False) -> Tensor:
         return self._forward_impl(x,use_feature=use_feature)
 
 
