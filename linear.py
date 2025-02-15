@@ -226,7 +226,7 @@ def main_worker(args):
     val_dataset =CIFAR10(root='./datasets', train=False, download=True, transform=transform_test)
 
     train_loader = DataLoader(train_dataset, shuffle=True, batch_size=args.batch_size,pin_memory=True,num_workers=args.workers,drop_last=True)
-    val_loader = DataLoader(val_dataset, shuffle=False, batch_size=args.knn_batch_size,pin_memory=True,num_workers=args.workers,drop_last=False)
+    val_loader = DataLoader(val_dataset, shuffle=False, batch_size=args.batch_size,pin_memory=True,num_workers=args.workers,drop_last=False)
 
     if args.evaluate:
         validate(val_loader, model, criterion, args)
