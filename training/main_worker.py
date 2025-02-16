@@ -176,11 +176,11 @@ def main_worker(args):
         from data_processing.imagenet import imagenet
         #val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
         #val_dataset = STL10(root='./data', split='train', download=True, transform=transform_test)
-        val_dataset= Imagenette(root =  './data', split= 'train', size= '160px', download=True, transform =transform_test)
+        val_dataset= Imagenette(root =  './data/val', split= 'train', size= '160px', download=True, transform =transform_test)
         
         #test_dataset =CIFAR10(root='./datasets', train=False, download=True, transform=transform_test)
         #test_dataset = STL10(root='./data', split='test', download=True, transform=transform_test)
-        test_dataset = Imagenette(root =  './data', split= 'val', size= '160px', download=True, transform =transform_test)
+        test_dataset = Imagenette(root =  './data/test', split= 'val', size= '160px', download=True, transform =transform_test)
 
     else:
         print("We only support ImageNet dataset currently")
