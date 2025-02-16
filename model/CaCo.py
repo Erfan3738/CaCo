@@ -25,8 +25,8 @@ class CaCo(nn.Module):
         dim_mlp = self.encoder_q.fc.weight.shape[1]
         print("dim_mlp:",dim_mlp)
         # we do not keep 
-        self.encoder_q.fc = self._build_mlp(3,dim_mlp,args.mlp_dim,dim,last_bn=False)
-        self.encoder_k.fc = self._build_mlp(3,dim_mlp,args.mlp_dim,dim,last_bn=False)
+        self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False)
+        self.encoder_k.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False)
         
         #self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=True)
         #self.encoder_k.fc = self._build_mlp(2, dim_mlp, args.mlp_dim, dim, last_bn=True)
