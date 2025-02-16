@@ -232,9 +232,9 @@ def main_worker(args):
                 if args.rank ==0:
                     with open(knn_path,'a+') as file:
                         file.write('%d epoch KNN monitor Accuracy %f\n'%(epoch,knn_test_acc))
-            except:
-                print("small error raised in knn calcu")
-                knn_test_acc=0
+            #except:
+                #print("small error raised in knn calcu")
+                #knn_test_acc=0
 
             torch.cuda.empty_cache()
             epoch_limit=20
