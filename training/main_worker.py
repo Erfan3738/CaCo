@@ -123,8 +123,8 @@ def main_worker(args):
     # Data loading code
     if args.dataset=='stl10':
         #traindir = os.path.join(args.data, 'train')
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
+        normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
+                                     std=[0.2023, 0.1994, 0.2010])
         if args.multi_crop:
             from data_processing.MultiCrop_Transform import Multi_Transform
             multi_transform = Multi_Transform([32, 24],
@@ -136,35 +136,35 @@ def main_worker(args):
         else:
 
             augmentation1 = transforms.Compose([
-                    transforms.RandomResizedCrop(160),
+                    transforms.RandomResizedCrop(32),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
                     transforms.RandomApply([
-                        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)  # not strengthened
+                        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1)  # not strengthened
                     ], p=0.8),
-                    transforms.RandomGrayscale(p=0.1),
+                    transforms.RandomGrayscale(p=0.2),
                     #transforms.GaussianBlur(kernel_size=9),
                     transforms.ToTensor(),
                     normalize
                 ])
 
             augmentation2 = transforms.Compose([
-                    transforms.RandomResizedCrop(160),
+                    transforms.RandomResizedCrop(32),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
                     transforms.RandomApply([
-                        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)  # not strengthened
+                        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1)  # not strengthened
                     ], p=0.8),
-                    transforms.RandomGrayscale(p=0.1),
+                    transforms.RandomGrayscale(p=0.2),
                    #transforms.GaussianBlur(kernel_size=9),
                     transforms.ToTensor(),
                     normalize
                 ])
             
             
-            #train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
+            train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
             #train_dataset = STL10(root='./data', split='unlabeled', download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
-            train_dataset = Imagenette(root =  './data', split= 'train', size= '160px', download=True, transform =TwoCropsTransform2(augmentation1, augmentation2))
+            #train_dataset = Imagenette(root =  './data', split= 'train', size= '160px', download=True, transform =TwoCropsTransform2(augmentation1, augmentation2))
             
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
@@ -174,13 +174,13 @@ def main_worker(args):
             normalize,
         ])
         from data_processing.imagenet import imagenet
-        #val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
+        val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
         #val_dataset = STL10(root='./data', split='train', download=True, transform=transform_test)
-        val_dataset= Imagenette(root =  './data/val', split= 'train', size= '160px', download=True, transform =transform_test)
+        #val_dataset= Imagenette(root =  './data/val', split= 'train', size= '160px', download=True, transform =transform_test)
         
-        #test_dataset =CIFAR10(root='./datasets', train=False, download=True, transform=transform_test)
+        test_dataset =CIFAR10(root='./datasets', train=False, download=True, transform=transform_test)
         #test_dataset = STL10(root='./data', split='test', download=True, transform=transform_test)
-        test_dataset = Imagenette(root =  './data/test', split= 'val', size= '160px', download=True, transform =transform_test)
+        #test_dataset = Imagenette(root =  './data/test', split= 'val', size= '160px', download=True, transform =transform_test)
 
     else:
         print("We only support ImageNet dataset currently")
