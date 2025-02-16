@@ -224,7 +224,7 @@ def main_worker(args):
             torch.cuda.empty_cache()
             print("gpu consuming after cleaning:", torch.cuda.memory_allocated()/1024/1024)
 
-            try:
+            
                 knn_test_acc=knn_monitor(model.encoder_q, val_loader, test_loader,global_k = args.knn_neighbor)
                                          
                         #global_k=min(args.knn_neighbor,len(val_loader.dataset))
@@ -236,7 +236,7 @@ def main_worker(args):
                 #print("small error raised in knn calcu")
                 #knn_test_acc=0
 
-            #torch.cuda.empty_cache()
+            torch.cuda.empty_cache()
             epoch_limit=20
             if knn_test_acc<=1.0 and epoch>=epoch_limit:
                 exit()
