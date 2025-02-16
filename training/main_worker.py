@@ -236,7 +236,7 @@ def main_worker(args):
                 #print("small error raised in knn calcu")
                 #knn_test_acc=0
 
-            torch.cuda.empty_cache()
+            #torch.cuda.empty_cache()
             epoch_limit=20
             if knn_test_acc<=1.0 and epoch>=epoch_limit:
                 exit()
