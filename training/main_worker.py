@@ -136,27 +136,27 @@ def main_worker(args):
         else:
 
             augmentation1 = transforms.Compose([
-                    transforms.RandomResizedCrop(160),
+                    transforms.RandomResizedCrop(160, scale=(0.5, 1.0)),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
                     transforms.RandomApply([
-                        transforms.ColorJitter(brightness=0.4, contrast=0.4 , saturation=0.2, hue=0.1)  # not strengthened
+                        transforms.ColorJitter(brightness=0.4, contrast=0.4 , saturation=0.4, hue=0.2)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
-                    #transforms.GaussianBlur(kernel_size=9),
+                    transforms.GaussianBlur(kernel_size=3),
                     transforms.ToTensor(),
                     normalize
                 ])
 
             augmentation2 = transforms.Compose([
-                    transforms.RandomResizedCrop(160),
+                    transforms.RandomResizedCrop(160, scale=(0.5, 1.0)),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
                     transforms.RandomApply([
-                        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1)  # not strengthened
+                        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
-                   #transforms.GaussianBlur(kernel_size=9),
+                   transforms.GaussianBlur(kernel_size=3),
                     transforms.ToTensor(),
                     normalize
                 ])
@@ -169,8 +169,7 @@ def main_worker(args):
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
             
-            transforms.Resize(180),
-            transforms.CenterCrop(160),
+            transforms.Resize(160),
             transforms.ToTensor(),
             normalize,
         ])
