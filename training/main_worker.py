@@ -123,8 +123,8 @@ def main_worker(args):
     # Data loading code
     if args.dataset=='stl10':
         #traindir = os.path.join(args.data, 'train')
-        normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
-                                     std=[0.2023, 0.1994, 0.2010])
+        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
         if args.multi_crop:
             from data_processing.MultiCrop_Transform import Multi_Transform
             multi_transform = Multi_Transform([32, 24],
@@ -136,11 +136,11 @@ def main_worker(args):
         else:
 
             augmentation1 = transforms.Compose([
-                    transforms.RandomResizedCrop(32),
+                    transforms.RandomResizedCrop(160),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
                     transforms.RandomApply([
-                        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1)  # not strengthened
+                        transforms.ColorJitter(brightness=0.4, contrast=0.4 saturation=0.2, hue=0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.GaussianBlur(kernel_size=9),
@@ -149,11 +149,11 @@ def main_worker(args):
                 ])
 
             augmentation2 = transforms.Compose([
-                    transforms.RandomResizedCrop(32),
+                    transforms.RandomResizedCrop(160),
                     transforms.RandomHorizontalFlip(p=0.5),
                     
                     transforms.RandomApply([
-                        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1)  # not strengthened
+                        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
                    #transforms.GaussianBlur(kernel_size=9),
@@ -169,7 +169,8 @@ def main_worker(args):
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
             
-            
+            transforms.Resize(180),
+            transforms.CenterCrop(160),
             transforms.ToTensor(),
             normalize,
         ])
