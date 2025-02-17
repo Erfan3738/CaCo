@@ -136,27 +136,26 @@ def main_worker(args):
         else:
 
             augmentation1 = transforms.Compose([
-                    transforms.RandomResizedCrop(160, scale=(0.5, 1.0)),
-                    transforms.RandomHorizontalFlip(p=0.5),
-                    
+                    transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
                     transforms.RandomApply([
-                        transforms.ColorJitter(brightness=0.4, contrast=0.4 , saturation=0.4, hue=0.2)  # not strengthened
+                        transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
-                    transforms.GaussianBlur(kernel_size=3),
+                    transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
+                    transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(),
                     normalize
                 ])
 
             augmentation2 = transforms.Compose([
-                    transforms.RandomResizedCrop(160, scale=(0.5, 1.0)),
-                    transforms.RandomHorizontalFlip(p=0.5),
-                    
+                    transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
                     transforms.RandomApply([
-                        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2)  # not strengthened
+                        transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
-                   transforms.GaussianBlur(kernel_size=3),
+                    transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.1),
+                    transforms.RandomApply([Solarize()], p=0.2),
+                    transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(),
                     normalize
                 ])
@@ -164,23 +163,24 @@ def main_worker(args):
             
             #train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
             #train_dataset = STL10(root='./data', split='unlabeled', download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
-            train_dataset = Imagenette(root =  './data', split= 'train', size= '160px', download=True, transform =TwoCropsTransform2(augmentation1, augmentation2))
+            train_dataset = Imagenette(root =  './data', split= 'train', size= '320px', download=True, transform =TwoCropsTransform2(augmentation1, augmentation2))
             
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
             
-            transforms.Resize(160),
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
             transforms.ToTensor(),
             normalize,
         ])
         from data_processing.imagenet import imagenet
         #val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
         #val_dataset = STL10(root='./data', split='train', download=True, transform=transform_test)
-        val_dataset= Imagenette(root =  './data/val', split= 'train', size= '160px', download=True, transform =transform_test)
+        val_dataset= Imagenette(root =  './data/val', split= 'train', size= '320px', download=True, transform =transform_test)
         
         #test_dataset =CIFAR10(root='./datasets', train=False, download=True, transform=transform_test)
         #test_dataset = STL10(root='./data', split='test', download=True, transform=transform_test
-        test_dataset = Imagenette(root =  './data/test', split= 'val', size= '160px', download=True, transform =transform_test)
+        test_dataset = Imagenette(root =  './data/test', split= 'val', size= '320px', download=True, transform =transform_test)
 
     else:
         print("We only support ImageNet dataset currently")
