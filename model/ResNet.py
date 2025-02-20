@@ -664,11 +664,11 @@ class BasicBlock1(nn.Module):
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock1, self).__init__()
-        self.bn1 = nn.BatchNorm2d(inplanes)
+        self.bn1 = norm_layer(inplanes)
         self.conv1 = conv3x3(inplanes, planes, stride)
-        self.bn2 = nn.BatchNorm2d(planes)
+        self.bn2 = norm_layer(planes)
         self.conv2 = conv3x3(planes, planes)
-        self.bn3 = nn.BatchNorm2d(planes)
+        self.bn3 = norm_layer(planes)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.stride = stride
@@ -776,7 +776,7 @@ class PyramidNet(nn.Module):
 
         self.input_featuremap_dim = self.inplanes
         self.conv1 = nn.Conv2d(3, self.input_featuremap_dim, kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(self.input_featuremap_dim)
+        self.bn1 = norm_layer(self.input_featuremap_dim)
 
         self.featuremap_dim = self.input_featuremap_dim
         self.layer1 = self.pyramidal_make_layer(block, n)
@@ -784,7 +784,7 @@ class PyramidNet(nn.Module):
         self.layer3 = self.pyramidal_make_layer(block, n, stride=2)
 
         self.final_featuremap_dim = self.input_featuremap_dim
-        self.bn_final= nn.BatchNorm2d(self.final_featuremap_dim)
+        self.bn_final= norm_layer(self.final_featuremap_dim)
         self.relu_final = nn.ReLU(inplace=True)
         self.avgpool = nn.AvgPool2d(8)
         self.fc = nn.Linear(self.final_featuremap_dim , num_classes)
@@ -795,7 +795,7 @@ class PyramidNet(nn.Module):
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
                 m.weight.data.normal_(0, math.sqrt(2. / n))
-            elif isinstance(m, nn.BatchNorm2d):
+            elif isinstance(m, norm_layer):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
                
