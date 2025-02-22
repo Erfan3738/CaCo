@@ -154,7 +154,7 @@ def main_worker(args):
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.1),
-                    transforms.RandomApply([Solarize()], p=0.2),
+                    #transforms.RandomApply([Solarize()], p=0.2),
                     transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(),
                     normalize
