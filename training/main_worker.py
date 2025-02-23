@@ -123,8 +123,8 @@ def main_worker(args):
     # Data loading code
     if args.dataset=='stl10':
         #traindir = os.path.join(args.data, 'train')
-        normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
-                                     std=[0.2023, 0.1994, 0.2010])
+        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
         if args.multi_crop:
             from data_processing.MultiCrop_Transform import Multi_Transform
             multi_transform = Multi_Transform([32, 24],
@@ -142,7 +142,7 @@ def main_worker(args):
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
-                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomHorizontalFlip(p=0.5),
                     transforms.ToTensor(),
                     normalize
                 ])
@@ -155,7 +155,7 @@ def main_worker(args):
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.1),
                     transforms.RandomApply([Solarize()], p=0.2),
-                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomHorizontalFlip(p=0.5),
                     transforms.ToTensor(),
                     normalize
                 ])
@@ -168,7 +168,7 @@ def main_worker(args):
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
             
-            transforms.Resize(32),
+            #transforms.Resize(32),
             #transforms.CenterCrop(224),
             transforms.ToTensor(),
             normalize,
