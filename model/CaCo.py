@@ -25,8 +25,8 @@ class CaCo(nn.Module):
         dim_mlp = self.encoder_q.fc.weight.shape[1]
         print("dim_mlp:",dim_mlp)
         # we do not keep 
-        self.encoder_q.fc = self._build_mlp(3,dim_mlp,args.mlp_dim,dim,last_bn=False)
-        self.encoder_k.fc = self._build_mlp(3,dim_mlp,args.mlp_dim,dim,last_bn=False)
+        self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False)
+        self.encoder_k.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False)
         
         #self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=True)
         #self.encoder_k.fc = self._build_mlp(2, dim_mlp, args.mlp_dim, dim, last_bn=True)
@@ -48,7 +48,7 @@ class CaCo(nn.Module):
 
             if l < num_layers - 1:
                 #mlp.append(nn.Linear(dim1, dim2, bias=False))
-                mlp.append(nn.LayerNorm(dim2))
+                #mlp.append(nn.LayerNorm(dim2))
                 mlp.append(nn.ReLU(inplace=True))
             elif last_bn:
                 # follow SimCLR's design: https://github.com/google-research/simclr/blob/master/model_util.py#L157
