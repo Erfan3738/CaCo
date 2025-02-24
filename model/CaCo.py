@@ -82,7 +82,7 @@ class CaCo(nn.Module):
             dim1 = input_dim if l == 0 else mlp_dim
             dim2 = output_dim if l == num_layers - 1 else mlp_dim
             
-            mlp.append(nn.Linear(dim1, dim2, bias=True))
+            mlp.append(nn.Linear(dim1, dim2, bias=False))
             
             if l < num_layers - 1:
                 # Hidden layers
