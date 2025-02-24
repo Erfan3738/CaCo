@@ -139,7 +139,7 @@ def main_worker(args):
                     transforms.RandomResizedCrop(32),
                     transforms.RandomApply([
                         transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
-                    ], p=0.8),
+                    ], p=0.6),
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
                     
@@ -152,10 +152,10 @@ def main_worker(args):
                     transforms.RandomResizedCrop(32),
                     transforms.RandomApply([
                         transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
-                    ], p=0.8),
+                    ], p=0.6),
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.1),
-                    #transforms.RandomApply([Solarize()], p=0.2),
+                    transforms.RandomApply([Solarize()], p=0.2),
                     transforms.RandomHorizontalFlip(p=0.5),
                     transforms.ToTensor(),
                     normalize
