@@ -219,7 +219,7 @@ def main_worker(args):
         acc1 = train_caco(train_loader, model, Memory_Bank, criterion,
                                 optimizer, epoch, args, train_log_path,moco_momentum)
 
-        if epoch%args.knn_freq==0 or epoch<=20 or epoch==475:
+        if epoch%args.knn_freq==0 or epoch<=20 or epoch==476:
             print("gpu consuming before cleaning:", torch.cuda.memory_allocated()/1024/1024)
             torch.cuda.empty_cache()
             print("gpu consuming after cleaning:", torch.cuda.memory_allocated()/1024/1024)
