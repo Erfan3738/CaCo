@@ -59,31 +59,31 @@ class CaCo(nn.Module):
             param_k.requires_grad = False  # not update by gradient
 
         self.K=args.cluster
-       
-   def _build_mlp1(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True, use_split_bn=True, num_splits=8):
-    mlp = []
-    for l in range(num_layers):
-        dim1 = input_dim if l == 0 else mlp_dim
-        dim2 = output_dim if l == num_layers - 1 else mlp_dim
+
+    def _build_mlp1(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True, use_split_bn=False, num_splits=2):
+        mlp = []
+        for l in range(num_layers):
+            dim1 = input_dim if l == 0 else mlp_dim
+            dim2 = output_dim if l == num_layers - 1 else mlp_dim
+            
+            mlp.append(nn.Linear(dim1, dim2, bias=True))
+            
+            if l < num_layers - 1:
+                # Hidden layers
+                if use_split_bn:
+                    mlp.append(SplitBatchNorm1d(dim2, num_splits=num_splits))
+                else:
+                    mlp.append(nn.BatchNorm1d(dim2))
+                mlp.append(nn.ReLU(inplace=True))
+            elif last_bn:
+                # Output layer
+                # Follow SimCLR's design with optional split batch norm
+                if use_split_bn:
+                    mlp.append(SplitBatchNorm1d(dim2, affine=False, num_splits=num_splits))
+                else:
+                    mlp.append(nn.BatchNorm1d(dim2, affine=False))
         
-        mlp.append(nn.Linear(dim1, dim2, bias=True))
-        
-        if l < num_layers - 1:
-            # Hidden layers
-            if use_split_bn:
-                mlp.append(SplitBatchNorm1d(dim2, num_splits=num_splits))
-            else:
-                mlp.append(nn.BatchNorm1d(dim2))
-            mlp.append(nn.ReLU(inplace=True))
-        elif last_bn:
-            # Output layer
-            # Follow SimCLR's design with optional split batch norm
-            if use_split_bn:
-                mlp.append(SplitBatchNorm1d(dim2, affine=False, num_splits=num_splits))
-            else:
-                mlp.append(nn.BatchNorm1d(dim2, affine=False))
-    
-       return nn.Sequential(*mlp)
+        return nn.Sequential(*mlp)
 
     def _build_mlp(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True):
         mlp = []
