@@ -8,6 +8,13 @@ class SplitBatchNorm1d(nn.BatchNorm1d):
         self.num_splits = num_splits
         
     def forward(self, input):
+        # Handle 2D input (N, C) by adding a dummy dimension
+        if input.dim() == 2:
+            input = input.unsqueeze(-1)
+            unsqueezed = True
+        else:
+            unsqueezed = False
+            
         N, C, L = input.shape
         if self.training or not self.track_running_stats:
             running_mean_split = self.running_mean.repeat(self.num_splits)
@@ -18,11 +25,20 @@ class SplitBatchNorm1d(nn.BatchNorm1d):
                 True, self.momentum, self.eps).view(N, C, L)
             self.running_mean.data.copy_(running_mean_split.view(self.num_splits, C).mean(dim=0))
             self.running_var.data.copy_(running_var_split.view(self.num_splits, C).mean(dim=0))
+            
+            # Remove the dummy dimension if we added it
+            if unsqueezed:
+                outcome = outcome.squeeze(-1)
             return outcome
         else:
-            return nn.functional.batch_norm(
+            outcome = nn.functional.batch_norm(
                 input, self.running_mean, self.running_var, 
                 self.weight, self.bias, False, self.momentum, self.eps)
+                
+            # Remove the dummy dimension if we added it
+            if unsqueezed:
+                outcome = outcome.squeeze(-1)
+            return outcome
 
 class CaCo(nn.Module):
    
