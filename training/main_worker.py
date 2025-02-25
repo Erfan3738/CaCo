@@ -258,7 +258,7 @@ def main_worker(args):
             }
 
 
-        if epoch%5==0:
+        if epoch%10==9:
             tmp_save_path = os.path.join(save_path, 'checkpoint_{:04d}.pth.tar'.format(epoch))
             torch.save(model, os.path.join(save_path, 'my_model.pth'))
             save_checkpoint(save_dict, is_best=False, filename=tmp_save_path)
