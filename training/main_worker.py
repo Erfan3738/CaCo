@@ -21,11 +21,7 @@ from data_processing.loader import TwoCropsTransform, TwoCropsTransform2,Gaussia
 from ops.knn_monitor import knn_monitor
 import torch.optim as optim
 from torchvision.datasets import CIFAR10, STL10,Imagenette 
-from lightly.transforms.byol_transform import (
-    BYOLTransform,
-    BYOLView1Transform,
-    BYOLView2Transform,
-)
+
 def init_log_path(args,batch_size):
     """
     :param args:
