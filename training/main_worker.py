@@ -139,7 +139,7 @@ def main_worker(args):
             augmentation1 = transforms.Compose([
                     transforms.RandomResizedCrop(32, scale=(0.2, 1.)),
                     transforms.RandomApply([
-                        transforms.ColorJitter(0.2, 0.2, 0.2, 0.05)  # not strengthened
+                        transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
@@ -153,7 +153,7 @@ def main_worker(args):
                     transforms.RandomResizedCrop(32, scale=(0.2, 1.)),
                     transforms.RandomApply([
                         transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
-                    ], p=0.7),
+                    ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.1),
                     transforms.RandomApply([Solarize()], p=0.2),
