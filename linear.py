@@ -115,6 +115,7 @@ def main_worker(args):
     model.fc.weight.data.normal_(mean=0.0, std=0.01)
     model.fc.bias.data.zero_()
     linear_keyword="fc"
+    print(model)
     # load from pre-trained, before DistributedDataParallel constructor
     if args.pretrained:
         if os.path.isfile(args.pretrained):
