@@ -57,15 +57,15 @@ class CaCo(nn.Module):
         self.encoder_q = base_encoder(num_classes=dim)
         self.encoder_q.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
         self.encoder_q.maxpool = nn.Identity()
-        self.encoder_q.layer2[0].conv1.stride = (1, 1)
-        self.encoder_q.layer2[0].downsample[0].stride = (1, 1) if hasattr(self.encoder_q.layer2[0], 'downsample') else None
+        #self.encoder_q.layer2[0].conv1.stride = (1, 1)
+        #self.encoder_q.layer2[0].downsample[0].stride = (1, 1) if hasattr(self.encoder_q.layer2[0], 'downsample') else None
 
         
         self.encoder_k = base_encoder(num_classes=dim)
         self.encoder_k.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
         self.encoder_k.maxpool = nn.Identity()
-        self.encoder_k.layer2[0].conv1.stride = (1, 1)
-        self.encoder_k.layer2[0].downsample[0].stride = (1, 1) if hasattr(self.encoder_k.layer2[0], 'downsample') else None
+        #self.encoder_k.layer2[0].conv1.stride = (1, 1)
+        #self.encoder_k.layer2[0].downsample[0].stride = (1, 1) if hasattr(self.encoder_k.layer2[0], 'downsample') else None
         
         dim_mlp = self.encoder_q.fc.weight.shape[1]
         print("dim_mlp:",dim_mlp)
