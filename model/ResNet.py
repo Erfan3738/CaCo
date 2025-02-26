@@ -70,7 +70,7 @@ class BasicBlock(nn.Module):
         groups: int = 1,
         base_width: int = 64,
         dilation: int = 1,
-        norm_layer: Optional[Callable[..., nn.Module]] = None
+        norm_layer: Optional[Callable[..., nn.Module]] = norm_layer
     ) -> None:
         super(BasicBlock, self).__init__()
         if norm_layer is None:
@@ -291,11 +291,11 @@ class ResNet(nn.Module):
         block: Type[Union[BasicBlock, Bottleneck]],
         layers: List[int],
         num_classes: int = 10,
-        zero_init_residual: bool = False,
+        zero_init_residual: bool = True,
         groups: int = 1,
         width_per_group: int = 64,
         replace_stride_with_dilation: Optional[List[bool]] = None,
-        norm_layer: Optional[Callable[..., nn.Module]] = None
+        norm_layer: Optional[Callable[..., nn.Module]] = norm_layer
     ) -> None:
         super(ResNet, self).__init__()
         if norm_layer is None:
@@ -331,7 +331,7 @@ class ResNet(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-            elif isinstance(m, nn.InstanceNorm2d):
+            elif isinstance(m, SplitBatchNorm):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
