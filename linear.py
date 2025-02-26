@@ -106,6 +106,8 @@ def main_worker(args):
     model = models.__dict__[args.arch](num_classes=num_classes)
     model.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
     model.maxpool = nn.Identity()
+    model.layer2[0].conv1.stride = (1, 1)
+    model.layer2[0].downsample[0].stride = (1, 1) if hasattr(self.encoder_q.layer2[0], 'downsample') else None
     print(model)
     # freeze all layers but the last fc
     for name, param in model.named_parameters():
