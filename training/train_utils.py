@@ -81,12 +81,12 @@ def adjust_learning_rate(optimizer, epoch, args):
     print("CURRENT NETWORK LR:",lr)
 def adjust_learning_rate2(optimizer, epoch, args,init_lr):
     """Decay the learning rate based on schedule"""
-    lr = init_lr
+    lr = args.lr
     ratio = args.lr/args.lr_final
     if epoch < args.warmup_epochs:
         lr = init_lr * (epoch+1) / args.warmup_epochs 
     else:
-        lr = init_lr/ratio + 0.5 * (1. + math.cos(math.pi * (epoch-args.warmup_epochs)/ (args.epochs-args.warmup_epochs))) * (init_lr- init_lr/ratio)
+        lr = args.lr/ratio + 0.5 * (1. + math.cos(math.pi * (epoch-args.warmup_epochs)/ (args.epochs-args.warmup_epochs))) * (init_lr- init_lr/ratio)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
     print("CURRENT NETWORK LR:",lr)
