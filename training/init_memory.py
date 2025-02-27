@@ -50,7 +50,7 @@ def init_memory(train_loader, model,Memory_Bank, criterion,
         # logits: Nx(1+K)
 
         logits = torch.cat([l_pos, l_neg], dim=1)
-        logits /= 0.1#using the default param in MoCo temperature
+        logits /= 0.08#using the default param in MoCo temperature
         labels = torch.zeros(logits.shape[0], dtype=torch.long).cuda()
         loss = criterion(logits, labels)
         # compute gradient and do SGD step
