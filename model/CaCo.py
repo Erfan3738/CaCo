@@ -16,29 +16,55 @@ class SplitBatchNorm1d(nn.BatchNorm1d):
             unsqueezed = False
             
         N, C, L = input.shape
+        
         if self.training or not self.track_running_stats:
-            running_mean_split = self.running_mean.repeat(self.num_splits)
-            running_var_split = self.running_var.repeat(self.num_splits)
-            outcome = nn.functional.batch_norm(
-                input.view(-1, C * self.num_splits, L), running_mean_split, running_var_split, 
-                self.weight.repeat(self.num_splits), self.bias.repeat(self.num_splits),
-                True, self.momentum, self.eps).view(N, C, L)
-            self.running_mean.data.copy_(running_mean_split.view(self.num_splits, C).mean(dim=0))
-            self.running_var.data.copy_(running_var_split.view(self.num_splits, C).mean(dim=0))
+            # Calculate the size of each split
+            split_size = N // self.num_splits
+            if split_size == 0:
+                split_size = 1
+                self.num_splits = N
             
-            # Remove the dummy dimension if we added it
-            if unsqueezed:
-                outcome = outcome.squeeze(-1)
-            return outcome
+            # Split the input into sub-batches
+            input_splits = torch.split(input, split_size)
+            
+            # Process each split separately and collect results
+            outputs = []
+            for i, split in enumerate(input_splits):
+                if i >= self.num_splits:
+                    break
+                    
+                # Calculate batch statistics for this split
+                batch_mean = split.mean([0, 2])
+                batch_var = split.var([0, 2], unbiased=False)
+                
+                # Update running statistics
+                with torch.no_grad():
+                    self.running_mean = self.running_mean * (1 - self.momentum) + batch_mean * self.momentum
+                    self.running_var = self.running_var * (1 - self.momentum) + batch_var * self.momentum
+                
+                # Normalize using batch statistics
+                normalized = (split - batch_mean.view(1, -1, 1)) / torch.sqrt(batch_var.view(1, -1, 1) + self.eps)
+                
+                # Apply scale and shift
+                if self.affine:
+                    normalized = normalized * self.weight.view(1, -1, 1) + self.bias.view(1, -1, 1)
+                    
+                outputs.append(normalized)
+                
+            # Concatenate all processed splits
+            outcome = torch.cat(outputs, dim=0)
+            
         else:
+            # During evaluation, use stored statistics for the whole batch
             outcome = nn.functional.batch_norm(
                 input, self.running_mean, self.running_var, 
                 self.weight, self.bias, False, self.momentum, self.eps)
-                
-            # Remove the dummy dimension if we added it
-            if unsqueezed:
-                outcome = outcome.squeeze(-1)
-            return outcome
+        
+        # Remove the dummy dimension if we added it
+        if unsqueezed:
+            outcome = outcome.squeeze(-1)
+            
+        return outcome
 
 class CaCo(nn.Module):
    
