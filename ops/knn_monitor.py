@@ -4,7 +4,7 @@ import torch.nn as nn
 # code copied from https://colab.research.google.com/github/facebookresearch/moco/blob/colab-notebook/colab/moco_cifar10_demo.ipynb#scrollTo=RI1Y8bSImD7N
 # test using a knn monitor
 def knn_monitor(net, memory_data_loader, test_data_loader,
-                global_k=200,pool_ops=True,temperature=0.1,
+                global_k=200,pool_ops=False,temperature=0.1,
                 vit_backbone=False):
     net.eval()
     classes = len(memory_data_loader.dataset.classes)
