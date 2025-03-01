@@ -4,9 +4,9 @@ import torch.nn as nn
 from tqdm import tqdm
 # code copied from https://colab.research.google.com/github/facebookresearch/moco/blob/colab-notebook/colab/moco_cifar10_demo.ipynb#scrollTo=RI1Y8bSImD7N
 # test using a knn monitor
-def knn_monitor(net, memory_data_loader, test_data_loader,
+def knn_monitor(net, memory_data_loader, test_data_loader,epoch, args,
                 global_k=200,pool_ops=True,temperature=0.1,
-                vit_backbone=False,epoch, args):
+                vit_backbone=False):
     net.eval()
     classes = len(memory_data_loader.dataset.classes)
     total_top1, total_top5, total_num, feature_bank = 0.0, 0.0, 0, []
