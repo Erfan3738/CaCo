@@ -98,8 +98,8 @@ class CaCo(nn.Module):
         # we do not keep 
         #self.encoder_q.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_q.fc)
         #self.encoder_k.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_k.fc)
-        self.encoder_q.fc = self._build_mlp1(3,dim_mlp,args.mlp_dim,dim,last_bn=False, use_split_bn=True, num_splits=8)
-        self.encoder_k.fc = self._build_mlp1(3,dim_mlp,args.mlp_dim,dim,last_bn=False, use_split_bn=True, num_splits=8)
+        self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False)
+        self.encoder_k.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False)
         
         #self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=True)
         #self.encoder_k.fc = self._build_mlp(2, dim_mlp, args.mlp_dim, dim, last_bn=True)
