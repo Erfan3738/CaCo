@@ -21,7 +21,7 @@ import torch.utils.data.distributed
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
-
+from tqdm import tqdm
 from training.train_utils import AverageMeter, ProgressMeter, accuracy
 
 
