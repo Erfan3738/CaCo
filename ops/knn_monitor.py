@@ -14,7 +14,7 @@ def knn_monitor(net, memory_data_loader, test_data_loader,epoch, args,
     avgpool = nn.AdaptiveAvgPool2d((1, 1))
     with torch.no_grad():
         # generate feature bank
-        for k,(data, target) in tqdm(memory_data_loader, desc='Feature extracting'):
+        for data, target in tqdm(memory_data_loader, desc='Feature extracting'):
 
             target = target.cuda(non_blocking=True)
             if vit_backbone:
@@ -41,7 +41,7 @@ def knn_monitor(net, memory_data_loader, test_data_loader,epoch, args,
         print("feature label size:",feature_labels.size())
         # loop test data to predict the label by weighted knn search
         test_bar = tqdm(test_data_loader)
-        for  k,(data, target) in test_bar:
+        for  data, target in test_bar:
             data, target = data.cuda(non_blocking=True), target.cuda(non_blocking=True)
             if vit_backbone:
                 feature = net(data, feature_only=True)
