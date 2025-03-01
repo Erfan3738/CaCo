@@ -1,11 +1,12 @@
 import torch.nn.functional as F
 import torch
 import torch.nn as nn
+from tqdm import tqdm
 # code copied from https://colab.research.google.com/github/facebookresearch/moco/blob/colab-notebook/colab/moco_cifar10_demo.ipynb#scrollTo=RI1Y8bSImD7N
 # test using a knn monitor
 def knn_monitor(net, memory_data_loader, test_data_loader,
                 global_k=200,pool_ops=True,temperature=0.2,
-                vit_backbone=False):
+                vit_backbone=False,epoch, args):
     net.eval()
     classes = len(memory_data_loader.dataset.classes)
     total_top1, total_top5, total_num, feature_bank = 0.0, 0.0, 0, []
@@ -13,7 +14,7 @@ def knn_monitor(net, memory_data_loader, test_data_loader,
     avgpool = nn.AdaptiveAvgPool2d((1, 1))
     with torch.no_grad():
         # generate feature bank
-        for k,(data, target) in enumerate(memory_data_loader):
+        for k,(data, target) in tqdm(memory_data_loader, desc='Feature extracting'):
 
             target = target.cuda(non_blocking=True)
             if vit_backbone:
@@ -28,7 +29,7 @@ def knn_monitor(net, memory_data_loader, test_data_loader,
             feature_bank.append(feature)
             
             feature_labels.append(target)
-            print("KNN feature accumulation %d/%d"%(k,len(memory_data_loader)))
+            #print("KNN feature accumulation %d/%d"%(k,len(memory_data_loader)))
         # [D, N]
         torch.cuda.empty_cache()
         print("gpu consuming before combining:", torch.cuda.memory_allocated() / 1024 / 1024)
@@ -39,7 +40,7 @@ def knn_monitor(net, memory_data_loader, test_data_loader,
         feature_labels = torch.cat(feature_labels, dim=0).contiguous()
         print("feature label size:",feature_labels.size())
         # loop test data to predict the label by weighted knn search
-        test_bar = enumerate(test_data_loader)
+        test_bar = tqdm(test_data_loader)
         for  k,(data, target) in test_bar:
             data, target = data.cuda(non_blocking=True), target.cuda(non_blocking=True)
             if vit_backbone:
@@ -57,8 +58,8 @@ def knn_monitor(net, memory_data_loader, test_data_loader,
             
             total_num += target.size(0)
             total_top1 += (pred_labels[:, 0] == target).float().sum().item()
-            print("current eval feature size: ",feature.size())
-            print({'#KNN monitor Accuracy': total_top1 / total_num * 100})
+            test_bar.set_description('Test Epoch: [{}/{}] Acc@1:{:.2f}%'.format(epoch, args.epochs, total_top1 / total_num * 100))
+
     del feature_bank
     del feature_labels
     return total_top1 / total_num * 100
