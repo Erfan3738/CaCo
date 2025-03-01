@@ -189,11 +189,15 @@ class CaCo(nn.Module):
         return x[idx_unshuffle]
        
     def forward_withoutpred_sym(self,im_q,im_k,moco_momentum):
-        q = self.encoder_q(im_q, use_feature=False)  # queries: NxC
+        im_q1, idx_unshuffle2 = self._batch_shuffle_single_gpu(im_q)
+        q = self.encoder_q(im_q1, use_feature=False) # queries: NxC
         q = nn.functional.normalize(q, dim=1)
+        q = self._batch_unshuffle_single_gpu(q, idx_unshuffle2)
         q_pred = q
-        k_pred = self.encoder_q(im_k, use_feature=False)  # queries: NxC
+        im_k1, idx_unshuffle3 = self._batch_shuffle_single_gpu(im_k)
+        k_pred = self.encoder_q(im_k1, use_feature=False)  # queries: NxC
         k_pred = nn.functional.normalize(k_pred, dim=1)
+        k_pred = self._batch_unshuffle_single_gpu(k_pred, idx_unshuffle3)
         with torch.no_grad():  # no gradient to keys
                 # if update_key_encoder:
             self._momentum_update_key_encoder_param(moco_momentum)# update the key encoder
