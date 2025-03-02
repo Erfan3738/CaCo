@@ -230,6 +230,7 @@ class CaCo(nn.Module):
         k_pred = nn.functional.normalize(k_pred, dim=1)
         with torch.no_grad():  # no gradient to keys
                 # if update_key_encoder:
+            self.encoder_k.eval()
             self._momentum_update_key_encoder_param(moco_momentum)# update the key encoder
            
             im_q_, idx_unshuffle = self._batch_shuffle_single_gpu(im_q)
