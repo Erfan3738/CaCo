@@ -6,6 +6,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 class SplitBatchNorm1d(nn.BatchNorm1d):
     """
     A custom BatchNorm1d implementation that splits each batch into multiple
@@ -73,33 +77,27 @@ class SplitBatchNorm1d(nn.BatchNorm1d):
             
             # Update running statistics if tracking
             if self.training and self.track_running_stats:
-                momentum = self.momentum if self.momentum is not None else 0.1
-                self.running_mean = (1 - momentum) * self.running_mean + momentum * mean.detach()
-                self.running_var = (1 - momentum) * self.running_var + momentum * var.detach()
+                with torch.no_grad():  # Prevent gradient computation for running stats
+                    momentum = self.momentum if self.momentum is not None else 0.1
+                    self.running_mean = (1 - momentum) * self.running_mean + momentum * mean
+                    self.running_var = (1 - momentum) * self.running_var + momentum * var
             
-            # Apply normalization with the computed statistics
-            return F.batch_norm(
-                input,
-                mean,
-                var,
-                self.weight,
-                self.bias,
-                False,  # We've already handled the running statistics
-                0.0,    # momentum is not used here
-                self.eps
-            )
+            # Normalize the input
+            input_normalized = (input - mean[None, :]) / torch.sqrt(var[None, :] + self.eps)
+            
+            # Apply scaling and shifting
+            if self.affine:
+                input_normalized = input_normalized * self.weight[None, :] + self.bias[None, :]
+                
+            return input_normalized
         else:
-            # In evaluation mode, use running statistics as normal
-            return F.batch_norm(
-                input,
-                self.running_mean,
-                self.running_var,
-                self.weight,
-                self.bias,
-                False,
-                0.0,
-                self.eps
-            )
+            # In evaluation mode, use running statistics
+            input_normalized = (input - self.running_mean[None, :]) / torch.sqrt(self.running_var[None, :] + self.eps)
+            
+            if self.affine:
+                input_normalized = input_normalized * self.weight[None, :] + self.bias[None, :]
+                
+            return input_normalized
 
 class CaCo(nn.Module):
    
