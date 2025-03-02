@@ -2,69 +2,104 @@
 import torch
 import torch.nn as nn
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 class SplitBatchNorm1d(nn.BatchNorm1d):
-    def __init__(self, num_features, num_splits, **kw):
-        super().__init__(num_features, **kw)
+    """
+    A custom BatchNorm1d implementation that splits each batch into multiple
+    parts, computes statistics separately on each split, and averages them.
+    
+    Args:
+        num_features (int): Number of features (C) in the input
+        num_splits (int): Number of splits to divide the batch into
+        **kwargs: Additional arguments for the parent BatchNorm1d class
+    """
+    def __init__(self, num_features, num_splits=2, **kwargs):
+        super(SplitBatchNorm1d, self).__init__(num_features, **kwargs)
         self.num_splits = num_splits
         
     def forward(self, input):
-        # Handle 2D input (N, C) by adding a dummy dimension
-        if input.dim() == 2:
-            input = input.unsqueeze(-1)
-            unsqueezed = True
-        else:
-            unsqueezed = False
-            
-        N, C, L = input.shape
+        # Get the batch size
+        N, C = input.shape[0], input.shape[1]
         
-        if self.training or not self.track_running_stats:
-            # Calculate the size of each split
+        # Check if batch size is divisible by num_splits
+        if N % self.num_splits != 0:
+            # If not divisible, adjust the split size to make it work
             split_size = N // self.num_splits
+            remainder = N % self.num_splits
             if split_size == 0:
-                split_size = 1
-                self.num_splits = N
-            
-            # Split the input into sub-batches
-            input_splits = torch.split(input, split_size)
-            
-            # Process each split separately and collect results
-            outputs = []
-            for i, split in enumerate(input_splits):
-                if i >= self.num_splits:
-                    break
-                    
-                # Calculate batch statistics for this split
-                batch_mean = split.mean([0, 2])
-                batch_var = split.var([0, 2], unbiased=False)
-                
-                # Update running statistics
-                with torch.no_grad():
-                    self.running_mean = self.running_mean * (1 - self.momentum) + batch_mean * self.momentum
-                    self.running_var = self.running_var * (1 - self.momentum) + batch_var * self.momentum
-                
-                # Normalize using batch statistics
-                normalized = (split - batch_mean.view(1, -1, 1)) / torch.sqrt(batch_var.view(1, -1, 1) + self.eps)
-                
-                # Apply scale and shift
-                if self.affine:
-                    normalized = normalized * self.weight.view(1, -1, 1) + self.bias.view(1, -1, 1)
-                    
-                outputs.append(normalized)
-                
-            # Concatenate all processed splits
-            outcome = torch.cat(outputs, dim=0)
-            
+                # If batch size is smaller than num_splits, just use the original BN
+                return super(SplitBatchNorm1d, self).forward(input)
         else:
-            # During evaluation, use stored statistics for the whole batch
-            outcome = nn.functional.batch_norm(
-                input, self.running_mean, self.running_var, 
-                self.weight, self.bias, False, self.momentum, self.eps)
+            split_size = N // self.num_splits
+            remainder = 0
         
-        # Remove the dummy dimension if we added it
-        if unsqueezed:
-            outcome = outcome.squeeze(-1)
+        # If in training mode, compute custom statistics
+        if self.training or not self.track_running_stats:
+            # Initialize accumulators for mean and variance
+            running_mean = torch.zeros(C, dtype=input.dtype, device=input.device)
+            running_var = torch.zeros(C, dtype=input.dtype, device=input.device)
             
-        return outcome
+            # Process each split
+            processed = 0
+            for i in range(self.num_splits):
+                # Handle the last split which might have a different size
+                if i == self.num_splits - 1 and remainder > 0:
+                    current_split_size = split_size + remainder
+                else:
+                    current_split_size = split_size
+                
+                # Extract the current split
+                split_input = input[processed:processed+current_split_size]
+                processed += current_split_size
+                
+                # Skip empty splits
+                if current_split_size == 0:
+                    continue
+                
+                # Calculate mean and variance for this split
+                split_mean = split_input.mean([0])
+                split_var = split_input.var([0], unbiased=False)
+                
+                # Accumulate statistics
+                running_mean += split_mean
+                running_var += split_var
+            
+            # Average the statistics
+            mean = running_mean / self.num_splits
+            var = running_var / self.num_splits
+            
+            # Update running statistics if tracking
+            if self.training and self.track_running_stats:
+                momentum = self.momentum if self.momentum is not None else 0.1
+                self.running_mean = (1 - momentum) * self.running_mean + momentum * mean.detach()
+                self.running_var = (1 - momentum) * self.running_var + momentum * var.detach()
+            
+            # Apply normalization with the computed statistics
+            return F.batch_norm(
+                input,
+                mean,
+                var,
+                self.weight,
+                self.bias,
+                False,  # We've already handled the running statistics
+                0.0,    # momentum is not used here
+                self.eps
+            )
+        else:
+            # In evaluation mode, use running statistics as normal
+            return F.batch_norm(
+                input,
+                self.running_mean,
+                self.running_var,
+                self.weight,
+                self.bias,
+                False,
+                0.0,
+                self.eps
+            )
 
 class CaCo(nn.Module):
    
@@ -98,8 +133,8 @@ class CaCo(nn.Module):
         # we do not keep 
         #self.encoder_q.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_q.fc)
         #self.encoder_k.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_k.fc)
-        self.encoder_q.fc = self._build_mlp1(2,dim_mlp,args.mlp_dim,dim,last_bn=False ,use_split_bn=True, num_splits=8)
-        self.encoder_k.fc = self._build_mlp1(2,dim_mlp,args.mlp_dim,dim,last_bn=False, use_split_bn=True, num_splits=8)
+        self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False , num_splits=8)
+        self.encoder_k.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False, num_splits=8)
         
         #self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=True)
         #self.encoder_k.fc = self._build_mlp(2, dim_mlp, args.mlp_dim, dim, last_bn=True)
@@ -136,7 +171,7 @@ class CaCo(nn.Module):
         
         return nn.Sequential(*mlp)
 
-    def _build_mlp(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True):
+    def _build_mlp(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True, num_splits=8):
         mlp = []
         for l in range(num_layers):
             dim1 = input_dim if l == 0 else mlp_dim
@@ -147,6 +182,7 @@ class CaCo(nn.Module):
             if l < num_layers - 1:
                 #mlp.append(nn.Linear(dim1, dim2, bias=False))
                 #mlp.append(nn.BatchNorm1d(dim2))
+                mlp.append(SplitBatchNorm1d(dim2, num_splits=num_splits))
                 mlp.append(nn.ReLU(inplace=True))
             elif last_bn:
                 # follow SimCLR's design: https://github.com/google-research/simclr/blob/master/model_util.py#L157
