@@ -190,7 +190,7 @@ def update_sym_network(model, images, args, Memory_Bank,
         logits1 = logits_keep1/cur_adco_t#/args.mem_t
         # negative logits: NxK
         # logits: Nx(1+K)
-        logits2 = logits_keep2/cur_adco_t#/args.mem_t
+        #logits2 = logits_keep2/cur_adco_t#/args.mem_t
         
         p_qd1 = nn.functional.softmax(logits1, dim=1)
         p_qd1[torch.arange(logits1.shape[0]), filter_index1] = 1 - p_qd1[torch.arange(logits1.shape[0]), filter_index1]
@@ -199,14 +199,14 @@ def update_sym_network(model, images, args, Memory_Bank,
             torch.mean(torch.mul(p_qd1, logits_keep1), dim=0), d_norm1)
         
         
-        p_qd2 = nn.functional.softmax(logits2, dim=1)
-        p_qd2[torch.arange(logits1.shape[0]), filter_index2] = 1 - p_qd2[torch.arange(logits2.shape[0]), filter_index2]
+        #p_qd2 = nn.functional.softmax(logits2, dim=1)
+       #p_qd2[torch.arange(logits1.shape[0]), filter_index2] = 1 - p_qd2[torch.arange(logits2.shape[0]), filter_index2]
 
 
 
-        g2 = torch.einsum('cn,nk->ck', [k_pred.T, p_qd2]) / logits2.shape[0] - torch.mul(
-            torch.mean(torch.mul(p_qd2, logits_keep2), dim=0), d_norm2)
-        g = -torch.div(g1, torch.norm(d1, dim=0))  - torch.div(g2,torch.norm(d2, dim=0))#/ args.mem_t  # c*k
+        #g2 = torch.einsum('cn,nk->ck', [k_pred.T, p_qd2]) / logits2.shape[0] - torch.mul(
+            #torch.mean(torch.mul(p_qd2, logits_keep2), dim=0), d_norm2)
+        g = -torch.div(g1, torch.norm(d1, dim=0))  #- torch.div(g2,torch.norm(d2, dim=0))#/ args.mem_t  # c*k
         g /=cur_adco_t
         
         
