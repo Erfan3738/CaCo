@@ -20,7 +20,7 @@ def knn_monitor(net, memory_data_loader, test_data_loader,epoch, args,
             if vit_backbone:
                 feature = net(data.cuda(non_blocking=True),feature_only=True)
             else:
-                feature = net(data.cuda(non_blocking=True),use_feature=False)
+                feature = net(data.cuda(non_blocking=True),use_feature=True)
                 if pool_ops:
                     feature = avgpool(feature)
                 feature = torch.flatten(feature, 1)
@@ -46,7 +46,7 @@ def knn_monitor(net, memory_data_loader, test_data_loader,epoch, args,
             if vit_backbone:
                 feature = net(data, feature_only=True)
             else:
-                feature = net(data,use_feature=False)
+                feature = net(data,use_feature=True)
                 if pool_ops:
                     feature = avgpool(feature)
                 feature = torch.flatten(feature, 1)
