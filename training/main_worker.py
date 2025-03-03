@@ -162,7 +162,7 @@ def main_worker(args):
             
     
                                     
-            train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
+            train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform(augmentation1))
             #train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=transform)
             #train_dataset = STL10(root='./data', split='unlabeled', download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
             #train_dataset = Imagenette(root =  './data', split= 'train', size= 'full', download=True, transform =TwoCropsTransform2(augmentation1, augmentation2))
