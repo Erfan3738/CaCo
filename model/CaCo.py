@@ -131,8 +131,8 @@ class CaCo(nn.Module):
         # we do not keep 
         #self.encoder_q.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_q.fc)
         #self.encoder_k.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_k.fc)
-        self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False )
-        self.encoder_k.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False)
+        self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False,num_splits=8)
+        self.encoder_k.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False,num_splits=8)
         
         #self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=True)
         #self.encoder_k.fc = self._build_mlp(2, dim_mlp, args.mlp_dim, dim, last_bn=True)
@@ -169,7 +169,7 @@ class CaCo(nn.Module):
         
         return nn.Sequential(*mlp)
 
-    def _build_mlp(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True):
+    def _build_mlp(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True,num_splits=8):
         mlp = []
         for l in range(num_layers):
             dim1 = input_dim if l == 0 else mlp_dim
@@ -179,8 +179,8 @@ class CaCo(nn.Module):
 
             if l < num_layers - 1:
                 #mlp.append(nn.Linear(dim1, dim2, bias=False))
-                mlp.append(nn.BatchNorm1d(dim2))
-                #mlp.append(SplitBatchNorm1d(dim2, num_splits=num_splits))
+                #mlp.append(nn.BatchNorm1d(dim2))
+                mlp.append(SplitBatchNorm1d(dim2, num_splits=num_splits))
                 mlp.append(nn.ReLU(inplace=True))
             elif last_bn:
                 # follow SimCLR's design: https://github.com/google-research/simclr/blob/master/model_util.py#L157
