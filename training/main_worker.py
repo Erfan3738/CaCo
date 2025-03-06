@@ -359,7 +359,7 @@ def main_worker(args):
 
             torch.cuda.empty_cache()
             epoch_limit=20
-            if knn_test_acc<=1.0 and epoch>=epoch_limit:
+            if acc<=1.0 and epoch>=epoch_limit:
                 exit()
         is_best=best_Acc>acc
         best_Acc=max(best_Acc,acc)
