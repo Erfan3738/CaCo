@@ -199,10 +199,10 @@ def main_worker(args):
  
     from model.optimizer import  AdamW
     from model.optimizer import  LARS
-    #optimizer = AdamW(model.parameters(), args.lr, betas=(0.9, 0.999), eps=1e-8, weight_decay=args.weight_decay)
+    optimizer = AdamW(model.parameters(), args.lr, betas=(0.9, 0.999), eps=1e-8, weight_decay=args.weight_decay)
     #optimizer = LARS(model.parameters(), args.lr ,weight_decay=args.weight_decay,momentum=args.momentum)
     
-    optimizer = torch.optim.SGD(model.parameters(), args.lr, args.weight_decay, args.momentum)
+    #optimizer = torch.optim.SGD(model.parameters(), args.lr, args.weight_decay, args.momentum)
 
 
     model.cuda()
@@ -344,11 +344,11 @@ def main_worker(args):
             print("gpu consuming before cleaning:", torch.cuda.memory_allocated()/1024/1024)
             torch.cuda.empty_cache()
             print("gpu consuming after cleaning:", torch.cuda.memory_allocated()/1024/1024)
-            knn_test_acc=knn_monitor(model.encoder_q, val_loader, test_loader,epoch, args,global_k = args.knn_neighbor) 
+            acc=knn_monitor(model.encoder_q, val_loader, test_loader,epoch, args,global_k = args.knn_neighbor) 
             print({'*KNN monitor Accuracy': knn_test_acc})
             if args.rank ==0:
                     with open(knn_path,'a+') as file:
-                        file.write('%d epoch KNN monitor Accuracy %f\n'%(epoch,knn_test_acc))
+                        file.write('%d epoch KNN monitor Accuracy %f\n'%(epoch,acc))
             
                                          
                         #global_k=min(args.knn_neighbor,len(val_loader.dataset))
@@ -361,8 +361,8 @@ def main_worker(args):
             epoch_limit=20
             if knn_test_acc<=1.0 and epoch>=epoch_limit:
                 exit()
-        is_best=best_Acc>acc1
-        best_Acc=max(best_Acc,acc1)
+        is_best=best_Acc>acc
+        best_Acc=max(best_Acc,acc)
 
         save_dict={
             'epoch': epoch + 1,
