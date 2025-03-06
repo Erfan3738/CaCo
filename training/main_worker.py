@@ -126,7 +126,7 @@ def setup_optimizer_with_no_lr_scheduler_for_projection_head(model, base_lr=1.0,
                      momentum=momentum, trust_coefficient=trust_coefficient)
     
     # Create your LR scheduler, but only apply it to the non-projection head parameters
-    def lr_lambda(epoch, total_epochs=800)):  # Default total_epochs=100
+    def lr_lambda(epoch, total_epochs=800):  # Default total_epochs=100
         # Define your learning rate schedule logic here
         # For example, a cosine decay schedule:
         return 0.5 * (1 + math.cos(math.pi * epoch /total_epochs))
