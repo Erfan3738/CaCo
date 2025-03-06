@@ -159,7 +159,7 @@ class LARS2(Optimizer):
         self,
         params: Any,
         lr: float,
-        momentum: float = 0,
+        momentum: float = 0.9,
         dampening: float = 0,
         weight_decay: float = 0,
         nesterov: bool = False,
