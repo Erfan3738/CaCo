@@ -256,4 +256,4 @@ class LARS2(Optimizer):
 
                 p.add_(d_p, alpha=-group["lr"])
 
-        return loss
+        
