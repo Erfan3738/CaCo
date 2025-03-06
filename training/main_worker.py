@@ -122,7 +122,7 @@ def setup_optimizer_with_no_lr_scheduler_for_projection_head(model, base_lr=0.1,
     ]
     
     # Create the optimizer with these groups
-    optimizer = LARS(param_groups, lr=base_lr, weight_decay=weight_decay, 
+    optimizer = LARS2(param_groups, lr=base_lr, weight_decay=weight_decay, 
                      momentum=momentum, trust_coefficient=trust_coefficient)
     
     # Create your LR scheduler, but only apply it to the non-projection head parameters
