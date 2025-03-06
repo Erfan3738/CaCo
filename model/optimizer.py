@@ -95,165 +95,121 @@ from typing import Any, Callable, Dict, Optional, overload
 from torch.optim.optimizer import Optimizer
 
 
-class LARS2(Optimizer):
-    """Extends SGD in PyTorch with LARS scaling from the paper "Large batch training of
-    Convolutional Networks" [0].
-
-    Implementation from PyTorch Lightning Bolts [1].
-
-    - [0]: https://arxiv.org/pdf/1708.03888.pdf
-    - [1]: https://github.com/Lightning-Universe/lightning-bolts/blob/2dfe45a4cf050f120d10981c45cfa2c785a1d5e6/pl_bolts/optimizers/lars.py#L1
-
-    Args:
-        params: 
-            Iterable of parameters to optimize or dicts defining parameter groups.
-        lr:
-            Learning rate
-        momentum:
-            Momentum factor.
-        weight_decay:
-            Weight decay (L2 penalty).
-        dampening:
-            Dampening for momentum.
-        nesterov:
-            Enables Nesterov momentum.
-        trust_coefficient:
-            Trust coefficient for computing learning rate.
-        eps:
-            Eps for division denominator.
-
-    Example:
-        >>> model = torch.nn.Linear(10, 1)
-        >>> input = torch.Tensor(10)
-        >>> target = torch.Tensor([1.])
-        >>> loss_fn = lambda input, target: (input - target) ** 2
-        >>> optimizer = LARS(model.parameters(), lr=0.1, momentum=0.9)
-        >>> optimizer.zero_grad()
-        >>> loss_fn(model(input), target).backward()
-        >>> optimizer.step()
-
-    .. note::
-        The application of momentum in the SGD part is modified according to
-        the PyTorch standards. LARS scaling fits into the equation in the
-        following fashion.
-
-        .. math::
-            \begin{aligned}
-                g_{t+1} & = \text{lars_lr} * (\beta * p_{t} + g_{t+1}), \\
-                v_{t+1} & = \\mu * v_{t} + g_{t+1}, \\
-                p_{t+1} & = p_{t} - \text{lr} * v_{t+1},
-            \\end{aligned}
-
-        where :math:`p`, :math:`g`, :math:`v`, :math:`\\mu` and :math:`\beta` denote the
-        parameters, gradient, velocity, momentum, and weight decay respectively.
-        The :math:`lars_lr` is defined by Eq. 6 in the paper.
-        The Nesterov version is analogously modified.
-
-    .. warning::
-        Parameters with weight decay set to 0 will automatically be excluded from
-        layer-wise LR scaling. This is to ensure consistency with papers like SimCLR
-        and BYOL.
+class LARS2(torch.optim.Optimizer):
     """
-
-    def __init__(
-        self,
-        params: Any,
-        lr: float,
-        momentum: float = 0.9,
-        dampening: float = 0,
-        weight_decay: float = 0,
-        nesterov: bool = False,
-        trust_coefficient: float = 0.001,
-        eps: float = 1e-8,
-    ):
-        if lr < 0.0:
-            raise ValueError(f"Invalid learning rate: {lr}")
-        if momentum < 0.0:
-            raise ValueError(f"Invalid momentum value: {momentum}")
-        if weight_decay < 0.0:
-            raise ValueError(f"Invalid weight_decay value: {weight_decay}")
-
-        defaults = dict(
-            lr=lr,
-            momentum=momentum,
-            dampening=dampening,
-            weight_decay=weight_decay,
-            nesterov=nesterov,
-            trust_coefficient=trust_coefficient,
-            eps=eps,
-        )
-        if nesterov and (momentum <= 0 or dampening != 0):
-            raise ValueError("Nesterov momentum requires a momentum and zero dampening")
-
+    LARS optimizer with explicit exclusion of SplitBatchNorm parameters and biases
+    from weight decay and LARS adaptation.
+    """
+    def __init__(self, params, lr=0, weight_decay=0, momentum=0.9, trust_coefficient=0.001):
+        defaults = dict(lr=lr, weight_decay=weight_decay, momentum=momentum, 
+                        trust_coefficient=trust_coefficient)
         super().__init__(params, defaults)
 
-    def __setstate__(self, state: Dict[str, Any]) -> None:
-        super().__setstate__(state)
-        for group in self.param_groups:
-            group.setdefault("nesterov", False)
-
-    # Type ignore for overloads is required for Python 3.7.
-    @overload  # type: ignore[override]
-    def step(self, closure: None = None) -> None:
-        ...
-
-    @overload  # type: ignore[override]
-    def step(self, closure: Callable[[], float]) -> float:
-        ...
+    def _is_splitbatchnorm(self, p):
+        """Check if the parameter belongs to a SplitBatchNorm layer"""
+        if hasattr(p, '_module_name'):
+            module_name = p._module_name.lower()
+            return 'splitbatchnorm' in module_name or 'splitbn' in module_name
+        return False
+    
+    def _is_bias(self, p):
+        """Check if the parameter is a bias"""
+        if hasattr(p, '_param_name'):
+            return 'bias' in p._param_name.lower()
+        return False
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:
-        """Performs a single optimization step.
-
-        Args:
-            closure (callable, optional): A closure that reevaluates the model
-                and returns the loss.
-        """
+    def step(self, closure=None):
         loss = None
         if closure is not None:
             with torch.enable_grad():
                 loss = closure()
 
-        # Exclude scaling for params with 0 weight decay.
         for group in self.param_groups:
-            weight_decay = group["weight_decay"]
-            momentum = group["momentum"]
-            dampening = group["dampening"]
-            nesterov = group["nesterov"]
+            weight_decay = group['weight_decay']
+            momentum = group['momentum']
+            trust_coefficient = group['trust_coefficient']
+            lr = group['lr']
 
-            for p in group["params"]:
+            for p in group['params']:
                 if p.grad is None:
                     continue
-
+                
                 d_p = p.grad
-                p_norm = torch.norm(p.data)
-                g_norm = torch.norm(p.grad.data)
+                
+                # Skip weight decay for SplitBatchNorm and bias parameters
+                if weight_decay != 0 and not (self._is_splitbatchnorm(p) or self._is_bias(p)):
+                    d_p = d_p.add(p, alpha=weight_decay)
+                
+                # Apply LARS adaptation only for non-SplitBatchNorm and non-bias parameters
+                if not (self._is_splitbatchnorm(p) or self._is_bias(p)):
+                    param_norm = torch.norm(p)
+                    update_norm = torch.norm(d_p)
+                    
+                    if param_norm != 0 and update_norm != 0:
+                        # LARS coefficient
+                        lars_coef = trust_coefficient * param_norm / update_norm
+                        d_p = d_p.mul(lars_coef)
+                
+                # Apply momentum and update
+                param_state = self.state[p]
+                if 'momentum_buffer' not in param_state:
+                    param_state['momentum_buffer'] = torch.zeros_like(p)
+                
+                buf = param_state['momentum_buffer']
+                buf.mul_(momentum).add_(d_p)
+                
+                p.add_(buf, alpha=-lr)
+        
+        return loss
 
-                # Apply Lars scaling and weight decay.
-                if weight_decay != 0:
-                    if p_norm != 0 and g_norm != 0:
-                        lars_lr = p_norm / (
-                            g_norm + p_norm * weight_decay + group["eps"]
-                        )
-                        lars_lr *= group["trust_coefficient"]
-
-                        d_p = d_p.add(p, alpha=weight_decay)
-                        d_p *= lars_lr
-
-                # Apply momentum.
-                if momentum != 0:
-                    param_state = self.state[p]
-                    if "momentum_buffer" not in param_state:
-                        buf = param_state["momentum_buffer"] = torch.clone(d_p).detach()
-                    else:
-                        buf = param_state["momentum_buffer"]
-                        buf.mul_(momentum).add_(d_p, alpha=1 - dampening)
-
-                    if nesterov:
-                        d_p = d_p.add(buf, alpha=momentum)
-                    else:
-                        d_p = buf
-
-                p.add_(d_p, alpha=-group["lr"])
+# Helper function to set parameter attributes for better tracking
+def set_module_name_to_params(model):
+    for name, module in model.named_modules():
+        for param_name, param in module.named_parameters(recurse=False):
+            param._module_name = name
+            param._param_name = param_name
+            
+# Example of how to set up parameter groups with your ResNet model
+def setup_optimizer_with_no_lr_scheduler_for_projection_head(model, base_lr=0.1, 
+                                                           weight_decay=1e-6, 
+                                                           momentum=0.9,
+                                                           trust_coefficient=0.001):
+    # Tag parameters with their module names for better identification
+    set_module_name_to_params(model)
+    
+    # Separate parameters into projection head and the rest of the model
+    projection_head_params = []
+    other_params = []
+    
+    for name, param in model.named_parameters():
+        if name.startswith('fc.'):
+            projection_head_params.append(param)
+        else:
+            other_params.append(param)
+    
+    # Create parameter groups
+    param_groups = [
+        {'params': other_params, 'lr': base_lr, 'weight_decay': weight_decay},
+        {'params': projection_head_params, 'lr': base_lr, 'weight_decay': weight_decay}
+    ]
+    
+    # Create the optimizer with these groups
+    optimizer = LARS(param_groups, lr=base_lr, weight_decay=weight_decay, 
+                     momentum=momentum, trust_coefficient=trust_coefficient)
+    
+    # Create your LR scheduler, but only apply it to the non-projection head parameters
+    def lr_lambda(epoch, total_epochs=100):  # Default total_epochs=100
+        # Define your learning rate schedule logic here
+        # For example, a cosine decay schedule:
+        return 0.5 * (1 + math.cos(math.pi * epoch / total_epochs))
+    
+    # This scheduler will only adjust the learning rate for the first parameter group (non-projection head)
+    scheduler = torch.optim.lr_scheduler.LambdaLR(
+        optimizer, 
+        lr_lambda=[lambda epoch: lr_lambda(epoch), lambda _: 1.0]
+    )
+    
+    return optimizer, scheduler
 
         
