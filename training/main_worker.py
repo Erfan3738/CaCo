@@ -345,7 +345,7 @@ def main_worker(args):
             torch.cuda.empty_cache()
             print("gpu consuming after cleaning:", torch.cuda.memory_allocated()/1024/1024)
             acc=knn_monitor(model.encoder_q, val_loader, test_loader,epoch, args,global_k = args.knn_neighbor) 
-            print({'*KNN monitor Accuracy': knn_test_acc})
+            print({'*KNN monitor Accuracy': acc})
             if args.rank ==0:
                     with open(knn_path,'a+') as file:
                         file.write('%d epoch KNN monitor Accuracy %f\n'%(epoch,acc))
@@ -368,7 +368,7 @@ def main_worker(args):
             'epoch': epoch + 1,
             'arch': args.arch,
             'best_acc':best_Acc,
-            'knn_acc': knn_test_acc,
+            'knn_acc': acc,
             'state_dict': model.state_dict(),
             'optimizer': optimizer.state_dict(),
             'Memory_Bank':Memory_Bank.state_dict(),
