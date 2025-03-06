@@ -98,8 +98,8 @@ def set_module_name_to_params(model):
             param._param_name = param_name
             
 # Example of how to set up parameter groups with your ResNet model
-def setup_optimizer_with_no_lr_scheduler_for_projection_head(model, base_lr=0.1, 
-                                                           weight_decay=1e-6, 
+def setup_optimizer_with_no_lr_scheduler_for_projection_head(model, args.lr, 
+                                                           args.wd, 
                                                            momentum=0.9,
                                                            trust_coefficient=0.001):
     # Tag parameters with their module names for better identification
