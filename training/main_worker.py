@@ -256,7 +256,7 @@ optimizer = EnhancedSGD(
     args.momentum,          # Momentum coefficient
     args.weight_decay,     # Weight decay
     clip_grad_norm=1.0,    # Max gradient norm
-    swa_start=75,          # Start SWA from epoch 75
+    swa_start=100,          # Start SWA from epoch 75
     swa_freq=5             # Update SWA model every 5 epochs
 )
 
