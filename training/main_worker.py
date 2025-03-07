@@ -23,104 +23,168 @@ import torch.optim as optim
 from torchvision.datasets import CIFAR10, STL10,Imagenette 
 from torch.optim.optimizer import Optimizer
 
-class LARS(Optimizer):
+import torch
+from torch.optim.optimizer import Optimizer
+
+
+import torch
+from torch.optim.optimizer import Optimizer
+
+
+class EnhancedSGD(Optimizer):
+    """Enhanced SGD implementation with:
+    1. Stochastic Weight Averaging (SWA)
+    2. Gradient clipping/normalization
+    3. Selective weight decay (excluding biases and BatchNorm)
+    4. Momentum with optional Nesterov acceleration
+    
+    Learning rate scheduling should be handled externally.
+    
+    Args:
+        params (iterable): iterable of parameters to optimize
+        lr (float): base learning rate
+        momentum (float, optional): momentum factor (default: 0.9)
+        weight_decay (float, optional): weight decay (L2 penalty) (default: 1e-4)
+        dampening (float, optional): dampening for momentum (default: 0)
+        nesterov (bool, optional): enables Nesterov momentum (default: True)
+        exclude_bn_bias (bool, optional): exclude BN and bias from weight decay (default: True)
+        clip_grad_norm (float, optional): max norm of gradients (default: None)
+        swa_start (int): epoch to start SWA averaging
+        swa_freq (int): frequency of SWA model updates
     """
-    Layer-wise Adaptive Rate Scaling (LARS) optimizer optimized for CIFAR-10 contrastive learning.
-    """
-    def __init__(self, 
-                 params, 
-                 lr=0.2, 
-                 momentum=0.9, 
-                 eta=0.001, 
-                 weight_decay=1e-6, 
-                 epsilon=1e-5,
-                 exclude_bias_and_bn=True):
+
+    def __init__(self, params, lr=0.1, momentum=0.9, weight_decay=1e-4,
+                 dampening=0, nesterov=True, exclude_bn_bias=True,
+                 clip_grad_norm=None, swa_start=None, swa_freq=5):
+        
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
         if momentum < 0.0:
             raise ValueError(f"Invalid momentum value: {momentum}")
         if weight_decay < 0.0:
             raise ValueError(f"Invalid weight_decay value: {weight_decay}")
-        if eta < 0.0:
-            raise ValueError(f"Invalid eta value: {eta}")
         
-        defaults = dict(
-            lr=lr, 
-            momentum=momentum,
-            eta=eta,
-            weight_decay=weight_decay,
-            epsilon=epsilon,
-            exclude_bias_and_bn=exclude_bias_and_bn
-        )
+        defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
+                        weight_decay=weight_decay, nesterov=nesterov,
+                        clip_grad_norm=clip_grad_norm)
         
-        super(LARS, self).__init__(params, defaults)
-    
-    def __setstate__(self, state):
-        super(LARS, self).__setstate__(state)
-    
-    @torch.no_grad()
-    def step(self, closure=None):
-        """Performs a single optimization step."""
+        super(EnhancedSGD, self).__init__(params, defaults)
+        
+        self.exclude_bn_bias = exclude_bn_bias
+        self.swa_start = swa_start
+        self.swa_freq = swa_freq
+        
+        # Initialize SWA state
+        if swa_start is not None:
+            self.swa_state = {
+                'models_count': 0,
+                'swa_model': None
+            }
+        
+        # Identify parameters to exclude from weight decay
+        for group in self.param_groups:
+            for p in group['params']:
+                param_state = self.state[p]
+                
+                # Check if parameter is a bias or from BatchNorm
+                is_batch_norm = False
+                is_bias = False
+                
+                if hasattr(p, 'name') and p.name:
+                    is_batch_norm = 'bn' in p.name.lower() or 'batch_norm' in p.name.lower()
+                    is_bias = 'bias' in p.name.lower()
+                elif p.dim() == 1:
+                    is_bias = True
+                
+                param_state['apply_weight_decay'] = not (is_bias or is_batch_norm)
+
+    def step(self, closure=None, epoch=None, model=None):
+        """Performs a single optimization step.
+        
+        Args:
+            closure (callable, optional): A closure that reevaluates the model and returns the loss
+            epoch (int, optional): Current epoch number for SWA updates
+            model (nn.Module, optional): Model for SWA
+        """
         loss = None
         if closure is not None:
-            with torch.enable_grad():
-                loss = closure()
+            loss = closure()
+        
+        # Update SWA model if in SWA phase
+        if self.swa_start is not None and epoch is not None and model is not None:
+            if epoch >= self.swa_start and (epoch - self.swa_start) % self.swa_freq == 0:
+                self._update_swa_model(model)
         
         for group in self.param_groups:
             weight_decay = group['weight_decay']
             momentum = group['momentum']
-            eta = group['eta']
-            lr = group['lr']
-            epsilon = group['epsilon']
-            exclude_bias_and_bn = group['exclude_bias_and_bn']
+            dampening = group['dampening']
+            nesterov = group['nesterov']
+            clip_norm = group['clip_grad_norm']
+            
+            # Apply gradient clipping if specified
+            if clip_norm is not None:
+                parameters = [p for p in group['params'] if p.grad is not None]
+                if parameters:
+                    torch.nn.utils.clip_grad_norm_(parameters, clip_norm)
             
             for p in group['params']:
                 if p.grad is None:
                     continue
                 
-                grad = p.grad
+                d_p = p.grad.data
+                param_state = self.state[p]
                 
-                # Check if parameter should be excluded from adaptation and weight decay
-                if exclude_bias_and_bn:
-                    # Exclude bias (typically 1D) and BatchNorm parameters
-                    is_excluded = len(p.shape) == 1 or (hasattr(p, 'dim') and p.dim() == 1)
-                else:
-                    is_excluded = False
+                # Apply weight decay selectively
+                if weight_decay != 0 and param_state.get('apply_weight_decay', True):
+                    d_p = d_p.add(p.data, alpha=weight_decay)
                 
-                state = self.state[p]
-                
-                # State initialization
-                if len(state) == 0:
-                    state['momentum_buffer'] = torch.zeros_like(p)
-                
-                momentum_buffer = state['momentum_buffer']
-                
-                # Apply weight decay (skip for excluded parameters)
-                if weight_decay != 0 and not is_excluded:
-                    grad = grad.add(p, alpha=weight_decay)
-                
-                # Compute the local learning rate using LARS
-                if not is_excluded:  # For regular parameters, use LARS adaptation
-                    param_norm = torch.norm(p)
-                    grad_norm = torch.norm(grad)
-                    
-                    # Calculate the local learning rate
-                    if param_norm > 0 and grad_norm > 0:
-                        local_lr = eta * param_norm / (grad_norm + epsilon)
-                        # Clip the local LR to prevent instability
-                        local_lr = min(local_lr, 10.0)
+                # Apply momentum
+                if momentum != 0:
+                    if 'momentum_buffer' not in param_state:
+                        buf = param_state['momentum_buffer'] = torch.zeros_like(p.data)
+                        buf.mul_(momentum).add_(d_p)
                     else:
-                        local_lr = 1.0
-                else:
-                    # For bias and batch norm parameters, use base learning rate without LARS adaptation
-                    local_lr = 1.0
+                        buf = param_state['momentum_buffer']
+                        buf.mul_(momentum).add_(d_p, alpha=1 - dampening)
+                    
+                    if nesterov:
+                        d_p = d_p.add(buf, alpha=momentum)
+                    else:
+                        d_p = buf
                 
-                # Update with momentum
-                momentum_buffer.mul_(momentum).add_(grad, alpha=local_lr * lr)
-                
-                # Update parameters
-                p.add_(momentum_buffer, alpha=-1.0)
-
+                p.data.add_(d_p, alpha=-group['lr'])
+        
+        
+    
+    def _update_swa_model(self, model):
+        """Updates the SWA model using the current model weights"""
+        if 'swa_model' not in self.swa_state or self.swa_state['swa_model'] is None:
+            # Initialize SWA model by copying the current model
+            self.swa_state['swa_model'] = {
+                name: param.clone().detach()
+                for name, param in model.named_parameters()
+            }
+            self.swa_state['models_count'] = 1
+        else:
+            # Update SWA model with moving average
+            model_count = self.swa_state['models_count']
+            for name, param in model.named_parameters():
+                if name in self.swa_state['swa_model']:
+                    self.swa_state['swa_model'][name].mul_(model_count / (model_count + 1.0))
+                    self.swa_state['swa_model'][name].add_(param.data, alpha=1.0 / (model_count + 1.0))
+            self.swa_state['models_count'] += 1
+    
+    def swap_swa_sgd(self, model):
+        """Swaps the model parameters with the averaged SWA parameters"""
+        if not hasattr(self, 'swa_state') or self.swa_state['swa_model'] is None:
+            print("SWA model has not been initialized yet.")
+            return
+        
+        # Transfer SWA weights to model
+        for name, param in model.named_parameters():
+            if name in self.swa_state['swa_model']:
+                param.data.copy_(self.swa_state['swa_model'][name])
 def init_log_path(args,batch_size):
     """
     :param args:
@@ -186,14 +250,15 @@ def main_worker(args):
     
     #optimizer = torch.optim.SGD(model.parameters(), args.lr, args.weight_decay, args.momentum)
 
-    optimizer = LARS(
-        model.parameters(),
-        lr=args.lr,
-        momentum=args.momentum,
-        weight_decay=args.weight_decay,
-        eta=0.001,
-        exclude_bias_and_bn=True
-    )
+optimizer = EnhancedSGD(
+    model.parameters(),
+    args.lr,                # Initial learning rate
+    args.momentum,          # Momentum coefficient
+    args.weight_decay,     # Weight decay
+    clip_grad_norm=1.0,    # Max gradient norm
+    swa_start=75,          # Start SWA from epoch 75
+    swa_freq=5             # Update SWA model every 5 epochs
+)
 
 
     model.cuda()
