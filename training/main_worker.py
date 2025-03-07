@@ -255,7 +255,7 @@ def main_worker(args):
     args.lr,                # Initial learning rate
     args.momentum,          # Momentum coefficient
     args.weight_decay,     # Weight decay
-    clip_grad_norm=1.0,    # Max gradient norm
+    clip_grad_norm=None,    # Max gradient norm
     swa_start=100,          # Start SWA from epoch 75
     swa_freq=5             # Update SWA model every 5 epoch
     )
