@@ -25,7 +25,7 @@ from torch.optim.optimizer import Optimizer
 
 class LARS2(torch.optim.Optimizer):
     """
-    LARS optimizer, no rate scaling or weight decay for normalization parameters (gamma/beta).
+    LARS optimizer, no rate scaling or weight decay for normalization parameters.
     Weight decay is applied to bias parameters.
     """
     def __init__(self, params, lr=0, weight_decay=0, momentum=0.9, trust_coefficient=0.001):
@@ -40,11 +40,11 @@ class LARS2(torch.optim.Optimizer):
                 if dp is None:
                     continue
                 
-                # Check if parameter is a batch normalization parameter (typically 1D and named gamma/beta)
-                is_bn_param = p.ndim == 1 and hasattr(p, 'name') and ('gamma' in p.name or 'beta' in p.name)
+                # Apply weight decay to all parameters except those used in batch normalization
+                # Batch norm parameters are typically 1D with specific sizes matching the number of channels
+                is_bn_param = p.ndim == 1 and p.dim() == 1
                 
-                # Apply weight decay to all parameters except batch normalization parameters
-                if not is_bn_param:
+                if not is_bn_param:  # Apply weight decay to non-BN parameters (including bias)
                     dp = dp.add(p, alpha=g['weight_decay'])
                 
                 # Apply LARS adaptation only for parameters > 1D (weights)
@@ -64,7 +64,6 @@ class LARS2(torch.optim.Optimizer):
                 mu = param_state['mu']
                 mu.mul_(g['momentum']).add_(dp)
                 p.add_(mu, alpha=-g['lr'])
-
 
 def init_log_path(args,batch_size):
     """
