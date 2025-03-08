@@ -244,21 +244,12 @@ def main_worker(args):
                                 #weight_decay=args.weight_decay)
  
     from model.optimizer import  AdamW
-    #from model.optimizer import  LARS
+    from model.optimizer import  LARS
     #optimizer = AdamW(model.parameters(), args.lr, betas=(0.9, 0.999), eps=1e-8, weight_decay=args.weight_decay)
-    #optimizer = LARS(model.parameters(), args.lr ,weight_decay=args.weight_decay,momentum=args.momentum)
+    optimizer = LARS(model.parameters(), args.lr ,weight_decay=args.weight_decay,momentum=args.momentum)
     
     #optimizer = torch.optim.SGD(model.parameters(), args.lr, args.weight_decay, args.momentum)
 
-    optimizer = EnhancedSGD(
-    model.parameters(),
-    args.lr,                # Initial learning rate
-    args.momentum,          # Momentum coefficient
-    args.weight_decay,     # Weight decay
-    clip_grad_norm=None,    # Max gradient norm
-    swa_start=100,          # Start SWA from epoch 75
-    swa_freq=5             # Update SWA model every 5 epoch
-    )
 
 
     model.cuda()
