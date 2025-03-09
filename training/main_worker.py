@@ -215,8 +215,6 @@ def main_worker(args):
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
             
-            transforms.Resize(32),
-            transforms.CenterCrop(32),
             transforms.ToTensor(),
             normalize,
         ])
