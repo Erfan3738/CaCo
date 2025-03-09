@@ -180,9 +180,9 @@ def main_worker(args):
         else:
 
             augmentation1 = transforms.Compose([
-                    transforms.RandomResizedCrop(128),
+                    transforms.RandomResizedCrop(32),
                     transforms.RandomApply([
-                        transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
+                        transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
@@ -193,9 +193,9 @@ def main_worker(args):
                 ])
 
             augmentation2 = transforms.Compose([
-                    transforms.RandomResizedCrop(128),
+                    transforms.RandomResizedCrop(32),
                     transforms.RandomApply([
-                        transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
+                        transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
                     ], p=0.8),
                     transforms.RandomGrayscale(p=0.2),
                     #transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.1),
@@ -207,27 +207,28 @@ def main_worker(args):
             
     
                                     
-            #train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform(augmentation1))
+            train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform(augmentation1))
             #train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=transform)
             #train_dataset = STL10(root='./data', split='unlabeled', download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
-            train_dataset = Imagenette(root =  './data', split= 'train', size= '160px', download=True, transform =TwoCropsTransform(augmentation1))
+            #train_dataset = Imagenette(root =  './data', split= 'train', size= '160px', download=True, transform =TwoCropsTransform(augmentation1))
             
         testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
             
-            transforms.Resize(128),
-            transforms.CenterCrop(128),
+            transforms.Resize(32),
+            transforms.CenterCrop(32),
             transforms.ToTensor(),
             normalize,
         ])
         from data_processing.imagenet import imagenet
-        #val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
+        val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
         #val_dataset = STL10(root='./data', split='train', download=True, transform=transform_test)
-        val_dataset= Imagenette(root =  './data/val', split= 'train', size= '160px', download=True, transform =transform_test)
+        #val_dataset= Imagenette(root =  './data/val', split= 'train', size= '160px', download=True, transform =transform_test)
         
-        #test_dataset =CIFAR10(root='./datasets', train=False, download=True, transform=transform_test)
+        test_dataset =CIFAR10(root='./datasets', train=False, download=True, transform=transform_test)
+
         #test_dataset = STL10(root='./data', split='test', download=True, transform=transform_test
-        test_dataset = Imagenette(root =  './data/test', split= 'val', size= '160px', download=True, transform =transform_test)
+        #test_dataset = Imagenette(root =  './data/test', split= 'val', size= '160px', download=True, transform =transform_test)
 
     else:
         print("We only support ImageNet dataset currently")
