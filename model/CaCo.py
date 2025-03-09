@@ -114,15 +114,15 @@ class CaCo(nn.Module):
         # create the encoders
         # num_classes is the output fc dimension
         self.encoder_q = base_encoder(num_classes=dim)
-        #self.encoder_q.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
-        #self.encoder_q.maxpool = nn.Identity()
+        self.encoder_q.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
+        self.encoder_q.maxpool = nn.Identity()
         #self.encoder_q.layer2[0].conv1.stride = (1, 1)
         #self.encoder_q.layer2[0].downsample[0].stride = (1, 1) if hasattr(self.encoder_q.layer2[0], 'downsample') else None
 
         
         self.encoder_k = base_encoder(num_classes=dim)
-        #self.encoder_k.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
-        #self.encoder_k.maxpool = nn.Identity()
+        self.encoder_k.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
+        self.encoder_k.maxpool = nn.Identity()
         #self.encoder_k.layer2[0].conv1.stride = (1, 1)
         #self.encoder_k.layer2[0].downsample[0].stride = (1, 1) if hasattr(self.encoder_k.layer2[0], 'downsample') else None
         
