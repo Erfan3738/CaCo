@@ -104,8 +104,8 @@ class CaCo(nn.Module):
 
             if l < num_layers - 1:
                 #mlp.append(nn.Linear(dim1, dim2, bias=False))
-                #mlp.append(nn.BatchNorm1d(dim2))
-                mlp.append(SplitBatchNorm1d(dim2, num_splits=num_splits))
+                mlp.append(nn.BatchNorm1d(dim2))
+                #mlp.append(SplitBatchNorm1d(dim2, num_splits=num_splits))
                 
                 mlp.append(nn.ReLU(inplace=True))
             elif last_bn:
