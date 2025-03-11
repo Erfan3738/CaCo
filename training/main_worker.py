@@ -13,8 +13,8 @@ import time
 import numpy as np
 import math
 from torch.utils.data import DataLoader
-#import model.ResNet as models
-import torchvision.models as models
+import model.ResNet as models
+#import torchvision.models as models
 from model.CaCo import CaCo, CaCo_PN
 from ops.os_operation import mkdir, mkdir_rank
 from training.train_utils import adjust_learning_rate2,save_checkpoint,adjust_learning_rate
