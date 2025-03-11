@@ -70,7 +70,7 @@ class BasicBlock(nn.Module):
         groups: int = 1,
         base_width: int = 64,
         dilation: int = 1,
-        norm_layer: Optional[Callable[..., nn.Module]] = norm_layer 
+        norm_layer: Optional[Callable[..., nn.Module]] = None
     ) -> None:
         super(BasicBlock, self).__init__()
         if norm_layer is None:
@@ -291,11 +291,11 @@ class ResNet(nn.Module):
         block: Type[Union[BasicBlock, Bottleneck]],
         layers: List[int],
         num_classes: int = 10,
-        zero_init_residual: bool = False,
+        zero_init_residual: bool =True,
         groups: int = 1,
         width_per_group: int = 64,
         replace_stride_with_dilation: Optional[List[bool]] = None,
-        norm_layer: Optional[Callable[..., nn.Module]] = norm_layer 
+        norm_layer: Optional[Callable[..., nn.Module]] = None 
     ) -> None:
         super(ResNet, self).__init__()
         if norm_layer is None:
