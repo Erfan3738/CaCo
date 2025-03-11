@@ -22,7 +22,8 @@ import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-import model.ResNet as models
+#import model.ResNet as models
+import torchvision.models as models
 from ops.os_operation import mkdir
 from torchvision.datasets import CIFAR10
 from torch.utils.data import DataLoader
