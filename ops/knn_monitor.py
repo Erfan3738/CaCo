@@ -5,7 +5,7 @@ from tqdm import tqdm
 # code copied from https://colab.research.google.com/github/facebookresearch/moco/blob/colab-notebook/colab/moco_cifar10_demo.ipynb#scrollTo=RI1Y8bSImD7N
 # test using a knn monitor
 def knn_monitor(net, memory_data_loader, test_data_loader,epoch, args,
-                global_k=200,pool_ops=True,temperature=0.2,
+                global_k=200,pool_ops=False,temperature=0.1,
                 vit_backbone=False):
     net.eval()
     classes = len(memory_data_loader.dataset.classes)
@@ -20,7 +20,7 @@ def knn_monitor(net, memory_data_loader, test_data_loader,epoch, args,
             if vit_backbone:
                 feature = net(data.cuda(non_blocking=True),feature_only=True)
             else:
-                feature = net(data.cuda(non_blocking=True),use_feature=True)
+                feature = net(data.cuda(non_blocking=True))
                 if pool_ops:
                     feature = avgpool(feature)
                 feature = torch.flatten(feature, 1)
@@ -46,7 +46,7 @@ def knn_monitor(net, memory_data_loader, test_data_loader,epoch, args,
             if vit_backbone:
                 feature = net(data, feature_only=True)
             else:
-                feature = net(data,use_feature=True)
+                feature = net(data)
                 if pool_ops:
                     feature = avgpool(feature)
                 feature = torch.flatten(feature, 1)
