@@ -23,6 +23,7 @@ import torchvision.datasets as datasets
 import torchvision.models as models
 from tqdm import tqdm
 from training.train_utils import AverageMeter, ProgressMeter, accuracy
+import copy
 
 
 def update_multicrop_network(model, images, args, Memory_Bank,
@@ -154,16 +155,18 @@ def update_sym_network(model, images, args, Memory_Bank,
     with torch.no_grad():
         #swap relationship, im_k supervise im_q
         d_norm21, d21, check_logits1 = Memory_Bank(k)
+        logits_fix1 = copy.deepcopy(check_logits1)
         check_logits1 = check_logits1.detach()
         filter_index1 = torch.argmax(check_logits1, dim=1)
-        labels1 = filter_index1
+        labels1 = copy.deepcopy(filter_index1)
 
         d_norm22, d22, check_logits2 = Memory_Bank(q)
         check_logits2 = check_logits2.detach()
+        logits_fix2 = check_logits2
         filter_index2 = torch.argmax(check_logits2, dim=1)
         labels2 = filter_index2
     
-    loss = criterion(logits1, labels1)#+0.5*criterion(logits2, labels2))#*args.moco_t
+    loss = (criterion(logits1, labels1)+criterion(logits2, labels2))
 
 
     # acc1/acc5 are (K+1)-way contrast classifier accuracy
