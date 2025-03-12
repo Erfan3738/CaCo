@@ -2,28 +2,6 @@
 import torch
 import torch.nn as nn
 
-class SplitBatchNorm1d(nn.BatchNorm1d):
-    def __init__(self, num_features, num_splits, **kw):
-        super().__init__(num_features, **kw)
-        self.num_splits = num_splits
-        
-    def forward(self, input):
-        N, C = input.shape
-        if self.training or not self.track_running_stats:
-            running_mean_split = self.running_mean.repeat(self.num_splits)
-            running_var_split = self.running_var.repeat(self.num_splits)
-            outcome = nn.functional.batch_norm(
-                input.view(-1, C * self.num_splits), running_mean_split, running_var_split, 
-                self.weight.repeat(self.num_splits), self.bias.repeat(self.num_splits),
-                True, self.momentum, self.eps).view(N, C)
-            self.running_mean.data.copy_(running_mean_split.view(self.num_splits, C).mean(dim=0))
-            self.running_var.data.copy_(running_var_split.view(self.num_splits, C).mean(dim=0))
-            return outcome
-        else:
-            return nn.functional.batch_norm(
-                input, self.running_mean, self.running_var, 
-                self.weight, self.bias, False, self.momentum, self.eps)
-
 class CaCo(nn.Module):
    
     def __init__(self, base_encoder,args, dim=128, m=0.99):
@@ -56,8 +34,8 @@ class CaCo(nn.Module):
         # we do not keep 
         #self.encoder_q.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_q.fc)
         #self.encoder_k.fc = nn.Sequential(nn.Linear(dim_mlp, dim_mlp), nn.ReLU(), self.encoder_k.fc)
-        self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False,num_splits=8)
-        self.encoder_k.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=False,num_splits=8)
+        self.encoder_q.fc = self._build_mlp(3,dim_mlp,args.mlp_dim,dim,last_bn=False)
+        self.encoder_k.fc = self._build_mlp(3,dim_mlp,args.mlp_dim,dim,last_bn=False)
         
         #self.encoder_q.fc = self._build_mlp(2,dim_mlp,args.mlp_dim,dim,last_bn=True)
         #self.encoder_k.fc = self._build_mlp(2, dim_mlp, args.mlp_dim, dim, last_bn=True)
@@ -69,32 +47,7 @@ class CaCo(nn.Module):
 
         self.K=args.cluster
 
-    def _build_mlp1(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True, use_split_bn=False, num_splits=8):
-        mlp = []
-        for l in range(num_layers):
-            dim1 = input_dim if l == 0 else mlp_dim
-            dim2 = output_dim if l == num_layers - 1 else mlp_dim
-            
-            mlp.append(nn.Linear(dim1, dim2, bias=False))
-            
-            if l < num_layers - 1:
-                # Hidden layers
-                if use_split_bn:
-                    mlp.append(SplitBatchNorm1d(dim2, num_splits=num_splits))
-                else:
-                    mlp.append(nn.BatchNorm1d(dim2))
-                mlp.append(nn.ReLU(inplace=True))
-            elif last_bn:
-                # Output layer
-                # Follow SimCLR's design with optional split batch norm
-                if use_split_bn:
-                    mlp.append(SplitBatchNorm1d(dim2, affine=False, num_splits=num_splits))
-                else:
-                    mlp.append(nn.BatchNorm1d(dim2, affine=False))
-        
-        return nn.Sequential(*mlp)
-
-    def _build_mlp(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True,num_splits=8):
+    def _build_mlp(self, num_layers, input_dim, mlp_dim, output_dim, last_bn=True):
         mlp = []
         for l in range(num_layers):
             dim1 = input_dim if l == 0 else mlp_dim
