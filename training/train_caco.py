@@ -163,7 +163,7 @@ def update_sym_network(model, images, args, Memory_Bank,
         filter_index2 = torch.argmax(check_logits2, dim=1)
         labels2 = filter_index2
     
-    loss = (0.5*criterion(logits1, labels1)+0.5*criterion(logits2, labels2))#*args.moco_t
+    loss = criterion(logits1, labels1)#+0.5*criterion(logits2, labels2))#*args.moco_t
 
 
     # acc1/acc5 are (K+1)-way contrast classifier accuracy
