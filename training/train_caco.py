@@ -212,7 +212,7 @@ def update_sym_network(model, images, args, Memory_Bank,
         g /=cur_adco_t
         
         
-        Memory_Bank.v.data = args.mem_momentum * Memory_Bank.v.data + g #+ args.mem_wd * Memory_Bank.W.data
+        Memory_Bank.v.data = args.mem_momentum * Memory_Bank.v.data + g + args.mem_wd * Memory_Bank.W.data
         Memory_Bank.W.data = Memory_Bank.W.data - memory_lr * Memory_Bank.v.data
     with torch.no_grad():
         logits = torch.softmax(logits1, dim=1)
