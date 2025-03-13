@@ -210,8 +210,8 @@ def main_worker(args):
     best_Acc=0
     for epoch in range(args.start_epoch, args.epochs):
 
-        #adjust_learning_rate(optimizer, epoch, args)
-        adjust_learning_rate2(optimizer, epoch, args, args.lr)
+        adjust_learning_rate(optimizer, epoch, args)
+        #adjust_learning_rate2(optimizer, epoch, args, args.lr)
         #scheduler.step()
         #if args.type<10:
         if args.moco_m_decay:
