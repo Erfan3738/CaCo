@@ -155,14 +155,12 @@ def update_sym_network(model, images, args, Memory_Bank,
     with torch.no_grad():
         #swap relationship, im_k supervise im_q
         d_norm21, d21, check_logits1 = Memory_Bank(k)
-        logits_fix1 = copy.deepcopy(check_logits1)
         check_logits1 = check_logits1.detach()
         filter_index1 = torch.argmax(check_logits1, dim=1)
-        labels1 = copy.deepcopy(filter_index1)
+        labels1 = filter_index1
 
         d_norm22, d22, check_logits2 = Memory_Bank(q)
         check_logits2 = check_logits2.detach()
-        logits_fix2 = check_logits2
         filter_index2 = torch.argmax(check_logits2, dim=1)
         labels2 = filter_index2
     
