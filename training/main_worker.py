@@ -138,7 +138,7 @@ def main_worker(args):
                 traindir, multi_transform)
         else:
 
-            augmentation1 = transforms.Compose([
+            augmentation1 = [
                     transforms.RandomResizedCrop(32),
                     transforms.RandomApply([
                         transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
@@ -149,9 +149,9 @@ def main_worker(args):
                     transforms.RandomHorizontalFlip(p=0.5),
                     transforms.ToTensor(),
                     normalize
-                ])
+                ]
 
-            augmentation2 = transforms.Compose([
+            augmentation2 = [
                     transforms.RandomResizedCrop(32),
                     transforms.RandomApply([
                         transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
@@ -162,7 +162,7 @@ def main_worker(args):
                     transforms.RandomHorizontalFlip(p=0.5),
                     transforms.ToTensor(),
                     normalize
-                ])
+                ]
             train_dataset = datasets.ImageFolder(
                     traindir,
                     TwoCropsTransform2(transforms.Compose(augmentation1),
