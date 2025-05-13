@@ -182,7 +182,8 @@ def main_worker(args):
             normalize,
         ])
         from data_processing.imagenet import imagenet
-        val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
+        val_dataset = imagenet(traindir, 1.0, transform_test)
+        #val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
         #val_dataset = STL10(root='./data', split='train', download=True, transform=transform_test)
         #val_dataset= Imagenette(root =  './data/val', split= 'train', size= '160px', download=True, transform =transform_test)
         
