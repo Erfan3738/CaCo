@@ -125,7 +125,7 @@ def main_worker(args):
 
     # Data loading code
     if args.dataset=='stl10':
-        #traindir = os.path.join(args.data, 'train')
+        traindir = os.path.join(args.data, 'pretrain')
         normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
                                      std=[0.2023, 0.1994, 0.2010])
         if args.multi_crop:
@@ -163,15 +163,19 @@ def main_worker(args):
                     transforms.ToTensor(),
                     normalize
                 ])
+             train_dataset = datasets.ImageFolder(
+                    traindir,
+                    TwoCropsTransform2(transforms.Compose(augmentation1),
+                                       transforms.Compose(augmentation2)))
             
     
                                     
-            train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform(augmentation1))
+            #train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform(augmentation1))
             #train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=transform)
             #train_dataset = STL10(root='./data', split='unlabeled', download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
             #train_dataset = Imagenette(root =  './data', split= 'train', size= '160px', download=True, transform =TwoCropsTransform(augmentation1))
             
-        testdir = os.path.join(args.data, 'val')
+        #testdir = os.path.join(args.data, 'val')
         transform_test = transforms.Compose([
             
             transforms.ToTensor(),
