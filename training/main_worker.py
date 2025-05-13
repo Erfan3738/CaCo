@@ -163,7 +163,7 @@ def main_worker(args):
                     transforms.ToTensor(),
                     normalize
                 ])
-             train_dataset = datasets.ImageFolder(
+            train_dataset = datasets.ImageFolder(
                     traindir,
                     TwoCropsTransform2(transforms.Compose(augmentation1),
                                        transforms.Compose(augmentation2)))
