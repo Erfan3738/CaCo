@@ -210,7 +210,7 @@ def main_worker(args):
                                      std=[0.2023, 0.1994, 0.2010])
     
     augmentation1 = transforms.Compose([
-                transforms.Resize(224)
+                transforms.Resize(224),
                 transforms.RandomResizedCrop(224),
                 transforms.RandomHorizontalFlip(p=0.5),
                     
@@ -225,7 +225,7 @@ def main_worker(args):
     train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=augmentation1)
 
     transform_test = transforms.Compose([
-        transforms.Resize(224)
+        transforms.Resize(224),
         transforms.ToTensor(),
         normalize,
     ])
