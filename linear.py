@@ -107,7 +107,7 @@ def main_worker(args):
     model = models.__dict__[args.arch](num_classes=num_classes)
     #model.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
     #model.maxpool = nn.Identity()
-    print(model)
+    
     # freeze all layers but the last fc
     #for name, param in model.named_parameters():
         #if name not in ['fc.weight', 'fc.bias']:
@@ -116,7 +116,7 @@ def main_worker(args):
     model.fc.weight.data.normal_(mean=0.0, std=0.01)
     model.fc.bias.data.zero_()
     linear_keyword="fc"
-    print(model)
+    
     # load from pre-trained, before DistributedDataParallel constructor
     if args.pretrained:
         if os.path.isfile(args.pretrained):
