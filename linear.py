@@ -171,13 +171,16 @@ def main_worker(args):
     # optimize only the linear classifier
     #parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
     #assert len(parameters) == 2  # fc.weight, fc.bias
+    optimizer = torch.optim.Adam(model.parameters(), args.lr, betas=(0.9, 0.999),
+                 eps=1e-08, weight_decay=0, amsgrad=False)
 
-    optimizer = torch.optim.SGD(model.parameters(), init_lr,
-                                momentum=args.momentum,
-                                weight_decay=args.weight_decay)
+
+    #optimizer = torch.optim.SGD(model.parameters(), init_lr,
+                                #momentum=args.momentum,
+                                #weight_decay=args.weight_decay)
     print("=> use LARS optimizer.")
     from ops.LARS import SGD_LARC
-    optimizer = SGD_LARC(optimizer, trust_coefficient=0.001, clip=False, eps=1e-8)
+    #optimizer = SGD_LARC(optimizer, trust_coefficient=0.001, clip=False, eps=1e-8)
     # optionally resume from a checkpoint
 
     if args.resume is None:
@@ -240,7 +243,7 @@ def main_worker(args):
     log_path = save_dir
     for epoch in range(args.start_epoch, args.epochs):
 
-        adjust_learning_rate(optimizer, init_lr, epoch, args)
+        #adjust_learning_rate(optimizer, init_lr, epoch, args)
 
         # train for one epoch
         train(train_loader, model, criterion, optimizer, epoch, args)
