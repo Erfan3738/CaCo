@@ -171,7 +171,8 @@ def main_worker(args):
     # optimize only the linear classifier
     #parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
     #assert len(parameters) == 2  # fc.weight, fc.bias
-    optimizer = torch.optim.Adam(model.parameters(), args.lr, betas=(0.9, 0.999),
+    init_lr = args.lr
+    optimizer = torch.optim.Adam(model.parameters(), init_lr, betas=(0.9, 0.999),
                  eps=1e-08, weight_decay=0, amsgrad=False)
 
 
@@ -243,7 +244,7 @@ def main_worker(args):
     log_path = save_dir
     for epoch in range(args.start_epoch, args.epochs):
 
-        #adjust_learning_rate(optimizer, init_lr, epoch, args)
+        adjust_learning_rate(optimizer, init_lr, epoch, args)
 
         # train for one epoch
         train(train_loader, model, criterion, optimizer, epoch, args)
