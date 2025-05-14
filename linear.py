@@ -105,13 +105,13 @@ def main_worker(args):
     print("=> creating model '{}'".format(args.arch))
     num_classes = 10
     model = models.__dict__[args.arch](num_classes=num_classes)
-    model.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
-    model.maxpool = nn.Identity()
+    #model.conv1 = nn.Conv2d(3, 64, 3, 1, 1, bias=False)
+    #model.maxpool = nn.Identity()
     print(model)
     # freeze all layers but the last fc
-    for name, param in model.named_parameters():
-        if name not in ['fc.weight', 'fc.bias']:
-            param.requires_grad = False
+    #for name, param in model.named_parameters():
+        #if name not in ['fc.weight', 'fc.bias']:
+            #param.requires_grad = False
     # init the fc layer
     model.fc.weight.data.normal_(mean=0.0, std=0.01)
     model.fc.bias.data.zero_()
@@ -169,8 +169,8 @@ def main_worker(args):
     if args.rank==0:
         mkdir(save_dir)
     # optimize only the linear classifier
-    parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
-    assert len(parameters) == 2  # fc.weight, fc.bias
+    #parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
+    #assert len(parameters) == 2  # fc.weight, fc.bias
 
     optimizer = torch.optim.SGD(parameters, init_lr,
                                 momentum=args.momentum,
@@ -210,7 +210,8 @@ def main_worker(args):
                                      std=[0.2023, 0.1994, 0.2010])
     
     augmentation1 = transforms.Compose([
-                transforms.RandomResizedCrop(32),
+                transforms.Resize(224)
+                transforms.RandomResizedCrop(224),
                 transforms.RandomHorizontalFlip(p=0.5),
                     
                 #transforms.RandomApply([
@@ -224,6 +225,7 @@ def main_worker(args):
     train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=augmentation1)
 
     transform_test = transforms.Compose([
+        transforms.Resize(224)
         transforms.ToTensor(),
         normalize,
     ])
