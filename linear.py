@@ -172,7 +172,7 @@ def main_worker(args):
     #parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
     #assert len(parameters) == 2  # fc.weight, fc.bias
 
-    optimizer = torch.optim.SGD(parameters, init_lr,
+    optimizer = torch.optim.SGD(model.parameters(), init_lr,
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay)
     print("=> use LARS optimizer.")
