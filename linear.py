@@ -215,7 +215,7 @@ def main_worker(args):
     
     augmentation1 = transforms.Compose([
                 
-                transforms.Resize(224),
+                transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
                 transforms.RandomHorizontalFlip(p=0.5),
                     
                 #transforms.RandomApply([
