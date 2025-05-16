@@ -172,8 +172,13 @@ def main_worker(args):
     #parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
     #assert len(parameters) == 2  # fc.weight, fc.bias
     init_lr = args.lr
-    optimizer = torch.optim.Adam(model.parameters(), init_lr, betas=(0.9, 0.999),
-                 eps=1e-08, weight_decay=1e-4, amsgrad=True)
+    #optimizer = torch.optim.Adam(model.parameters(), init_lr, betas=(0.9, 0.999),
+                 #eps=1e-08, weight_decay=1e-4, amsgrad=True)
+    from model.optimizer import  LARS
+    
+    optimizer = LARS(model.parameters(), init_lr,
+                         weight_decay=args.weight_decay,
+                         momentum=args.momentum)
 
 
     #optimizer = torch.optim.SGD(model.parameters(), init_lr,
