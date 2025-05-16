@@ -234,8 +234,8 @@ def main_worker(args):
     train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=augmentation1)
 
     transform_test = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
+        transforms.Resize(224),
+        
         
         transforms.ToTensor(),
         normalize,
