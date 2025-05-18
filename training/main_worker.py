@@ -125,7 +125,7 @@ def main_worker(args):
 
     # Data loading code
     if args.dataset=='stl10':
-        traindir = os.path.join(args.data, 'pretrain')
+        #traindir = os.path.join(args.data, 'pretrain')
         normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
                                      std=[0.2023, 0.1994, 0.2010])
         if args.multi_crop:
@@ -138,7 +138,7 @@ def main_worker(args):
                 traindir, multi_transform)
         else:
 
-            augmentation1 = [
+            augmentation1 = transforms.Compose([
                     transforms.RandomResizedCrop(32),
                     transforms.RandomApply([
                         transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
@@ -149,7 +149,7 @@ def main_worker(args):
                     transforms.RandomHorizontalFlip(p=0.5),
                     transforms.ToTensor(),
                     normalize
-                ]
+                ])
 
             augmentation2 = [
                     transforms.RandomResizedCrop(32),
@@ -170,7 +170,7 @@ def main_worker(args):
             
     
                                     
-            #train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform(augmentation1))
+            train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=TwoCropsTransform(augmentation1))
             #train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=transform)
             #train_dataset = STL10(root='./data', split='unlabeled', download=True, transform=TwoCropsTransform2(augmentation1, augmentation2))
             #train_dataset = Imagenette(root =  './data', split= 'train', size= '160px', download=True, transform =TwoCropsTransform(augmentation1))
@@ -182,8 +182,8 @@ def main_worker(args):
             normalize,
         ])
         from data_processing.imagenet import imagenet
-        val_dataset = imagenet(traindir, 1.0, transform_test)
-        #val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
+        #val_dataset = imagenet(traindir, 1.0, transform_test)
+        val_dataset =CIFAR10(root='./datasets', train=True, download=True, transform=transform_test)
         #val_dataset = STL10(root='./data', split='train', download=True, transform=transform_test)
         #val_dataset= Imagenette(root =  './data/val', split= 'train', size= '160px', download=True, transform =transform_test)
         
