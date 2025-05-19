@@ -172,8 +172,8 @@ def main_worker(args):
     #parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
     #assert len(parameters) == 2  # fc.weight, fc.bias
     init_lr = args.lr
-    #optimizer = torch.optim.Adam(model.parameters(), init_lr, betas=(0.9, 0.999),
-                 #eps=1e-08, weight_decay=1e-4, amsgrad=True)
+    optimizer = torch.optim.Adam(model.parameters(), init_lr, betas=(0.9, 0.999),
+                 eps=1e-08, weight_decay=1e-4, amsgrad=True)
     from model.optimizer import  LARS
     
     #optimizer = LARS(model.parameters(), init_lr,
@@ -181,12 +181,12 @@ def main_worker(args):
                          #momentum=args.momentum)
 
 
-    optimizer = torch.optim.SGD(model.parameters(), init_lr,
-                                momentum=args.momentum,
-                                weight_decay=args.weight_decay)
+    #optimizer = torch.optim.SGD(model.parameters(), init_lr,
+                                #momentum=args.momentum,
+                                #weight_decay=args.weight_decay)
     print("=> use LARS optimizer.")
     from ops.LARS import SGD_LARC
-    optimizer = SGD_LARC(optimizer, trust_coefficient=0.001, clip=False, eps=1e-8)
+    #optimizer = SGD_LARC(optimizer, trust_coefficient=0.001, clip=False, eps=1e-8)
     # optionally resume from a checkpoint
 
     if args.resume is None:
