@@ -220,9 +220,9 @@ def main_worker(args):
     
     augmentation1 = transforms.Compose([
                 
-                #transforms.Resize(224, antialias=True),
+                transforms.Resize(224, antialias=True),
                 #transforms.RandomCrop(224, padding=4),
-                transforms.RandomResizedCrop(224),
+                #transforms.RandomResizedCrop(224),
                 transforms.RandomHorizontalFlip(),
                     
                 #transforms.RandomApply([
