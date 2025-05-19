@@ -249,6 +249,7 @@ def main_worker(args):
         validate(val_loader, model, criterion, args)
         return
     log_path = save_dir
+    acc = os.path.join(log_path,"acc.log")
     for epoch in range(args.start_epoch, args.epochs):
 
         adjust_learning_rate(optimizer, init_lr, epoch, args)
