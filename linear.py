@@ -249,7 +249,7 @@ def main_worker(args):
         validate(val_loader, model, criterion, args)
         return
     log_path = save_dir
-    acc = os.path.join(log_path,"acc.log")
+    acc_path = os.path.join(log_path,"acc.log")
     for epoch in range(args.start_epoch, args.epochs):
 
         adjust_learning_rate(optimizer, init_lr, epoch, args)
@@ -259,6 +259,9 @@ def main_worker(args):
 
         # evaluate on validation set
         acc1 = validate(val_loader, model, criterion, args)
+
+        with open(acc_path,'a+') as file:
+            file.write('%d epoch  Accuracy %f\n'%(epoch,acc1))
 
         # remember best acc@1 and save checkpoint
         is_best = acc1 > best_acc1
