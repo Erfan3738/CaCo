@@ -182,8 +182,8 @@ def main_worker(args):
 
 
     optimizer = torch.optim.SGD(model.parameters(), init_lr,
-                                #momentum=args.momentum,
-                                #weight_decay=args.weight_decay)
+                                momentum=args.momentum,
+                                weight_decay=args.weight_decay)
     print("=> use LARS optimizer.")
     from ops.LARS import SGD_LARC
     optimizer = SGD_LARC(optimizer, trust_coefficient=0.001, clip=False, eps=1e-8)
