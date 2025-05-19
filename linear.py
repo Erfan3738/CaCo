@@ -172,13 +172,13 @@ def main_worker(args):
     #parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
     #assert len(parameters) == 2  # fc.weight, fc.bias
     init_lr = args.lr
-    optimizer = torch.optim.Adam(model.parameters(), init_lr, betas=(0.9, 0.999),
-                 eps=1e-08, weight_decay=1e-4, amsgrad=True)
+    #optimizer = torch.optim.Adam(model.parameters(), init_lr, betas=(0.9, 0.999),
+                 #eps=1e-08, weight_decay=1e-4, amsgrad=True)
     from model.optimizer import  LARS
     
-    #optimizer = LARS(model.parameters(), init_lr,
-                         #weight_decay=args.weight_decay,
-                         #momentum=args.momentum)
+    optimizer = LARS(model.parameters(), init_lr,
+                         weight_decay=args.weight_decay,
+                         momentum=args.momentum)
 
 
     #optimizer = torch.optim.SGD(model.parameters(), init_lr,
@@ -220,9 +220,9 @@ def main_worker(args):
     
     augmentation1 = transforms.Compose([
                 
-                transforms.Resize(224),
-                
-                transforms.RandomHorizontalFlip(p=0.5),
+                transforms.Resize(224, antialias=True),
+                transforms.RandomCrop(224, padding=4),
+                transforms.RandomHorizontalFlip(),
                     
                 #transforms.RandomApply([
                 #transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1)  # not strengthened
@@ -235,7 +235,7 @@ def main_worker(args):
     train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=augmentation1)
 
     transform_test = transforms.Compose([
-        transforms.Resize(224),              # Resize to 256x256
+        transforms.Resize(224, antialias=True)              # Resize to 256x256
         #transforms.CenterCrop(224),
         
         
