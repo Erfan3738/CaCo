@@ -176,17 +176,17 @@ def main_worker(args):
                  #eps=1e-08, weight_decay=1e-4, amsgrad=True)
     from model.optimizer import  LARS
     
-    optimizer = LARS(model.parameters(), init_lr,
-                         weight_decay=args.weight_decay,
-                         momentum=args.momentum)
+    #optimizer = LARS(model.parameters(), init_lr,
+                         #weight_decay=args.weight_decay,
+                         #momentum=args.momentum)
 
 
-    #optimizer = torch.optim.SGD(model.parameters(), init_lr,
+    optimizer = torch.optim.SGD(model.parameters(), init_lr,
                                 #momentum=args.momentum,
                                 #weight_decay=args.weight_decay)
     print("=> use LARS optimizer.")
     from ops.LARS import SGD_LARC
-    #optimizer = SGD_LARC(optimizer, trust_coefficient=0.001, clip=False, eps=1e-8)
+    optimizer = SGD_LARC(optimizer, trust_coefficient=0.001, clip=False, eps=1e-8)
     # optionally resume from a checkpoint
 
     if args.resume is None:
@@ -220,8 +220,8 @@ def main_worker(args):
     
     augmentation1 = transforms.Compose([
                 
-                transforms.Resize(256),
-                transforms.RandomCrop(224),
+                transforms.Resize(224),
+                
                 transforms.RandomHorizontalFlip(p=0.5),
                     
                 #transforms.RandomApply([
