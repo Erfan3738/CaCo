@@ -215,8 +215,8 @@ def main_worker(args):
     # Data loading code
     traindir = os.path.join(args.data, 'train')
     valdir = os.path.join(args.data, 'val')
-    normalize = transforms.Normalize(mean=[0.4914, 0.4822, 0.4465],
-                                     std=[0.2023, 0.1994, 0.2010])
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
     
     augmentation1 = transforms.Compose([
                 
@@ -234,7 +234,8 @@ def main_worker(args):
     train_dataset = CIFAR10(root='./datasets', train=True, download=True, transform=augmentation1)
 
     transform_test = transforms.Compose([
-        transforms.Resize(224),
+        transforms.Resize(224),  # Resize the shorter side to 224 (preserves aspect ratio)
+        transforms.CenterCrop(224),
         
         
         transforms.ToTensor(),
