@@ -33,7 +33,7 @@ class SplitBatchNorm(nn.BatchNorm2d):
             return nn.functional.batch_norm(
                 input, self.running_mean, self.running_var, 
                 self.weight, self.bias, False, self.momentum, self.eps)
-norm_layer = partial(SplitBatchNorm, num_splits=8)
+norm_layer = partial(SplitBatchNorm, num_splits=1)
 model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
     'resnet34': 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
