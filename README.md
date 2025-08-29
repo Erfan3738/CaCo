@@ -18,6 +18,8 @@ This is a modified version of original CaCo code with following changes:
 
 4- I tried to find the best possible hyperparameters.
 
+5- Added the option to simulate the behavior of multiple GPUs using split batch normalization.
+
 CaCo is a contrastive-learning based self-supervised learning methods, which is published in IEEE-T-PAMI.
 
 Copyright (C) 2022 Xiao Wang, Yuhang Huang, Dan Zeng, Guo-Jun Qi
