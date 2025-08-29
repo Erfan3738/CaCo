@@ -8,7 +8,7 @@
    <img src="https://img.shields.io/badge/licence-MIT-green">
 </a>   
 
-This is an modified version of original CaCo code with following changes:
+This is a modified version of original CaCo code with following changes:
 
 1- The original code was meant to run on multiple GPUs. Although you can actually use that code for a single-GPU setup, it seemed to me that it would add some delay and perhaps computational overhead. The code in this repo can be run on a single GPU easily.
 
