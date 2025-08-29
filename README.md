@@ -7,6 +7,15 @@
    <img src="https://img.shields.io/badge/dependencies-tested-green">
    <img src="https://img.shields.io/badge/licence-MIT-green">
 </a>   
+This is an modified version of original CaCo code with following changes:
+
+1- The original code was meant to run on multiple GPUs. Although you can actually use that code for a single-GPU setup, it seemed to me that it would add some delay and perhaps computational overhead. The code in this repo can be run on a single GPU easily.
+
+2- The architecture of conventional ResNets, as proposed in the paper "Deep Residual Learning for Image Recognition," was modified to meet the needs of the CIFAR-10 dataset (other options may be employed given sufficient processing power).
+
+3- The transformations were adjusted to match the CIFAR-10 images.
+
+4- I tried to find the best possible hyperparameters.
 
 CaCo is a contrastive-learning based self-supervised learning methods, which is published in IEEE-T-PAMI.
 
