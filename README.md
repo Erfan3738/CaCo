@@ -132,15 +132,15 @@ python linear.py  -a resnet50 --lr 0.25 --batch-size 512 \
 <tr><td align="left">ResNet-18</td>
 <td align="center">800</td>
 <td align="center">Single</td>
-<td align="center">1024</td>
-<td align="center">71.3</td>
+<td align="center">No</td>
+<td align="center">87.34</td>
 
 </tr>
 <tr><td align="left">ResNet-18</td>
 <td align="center">800</td>
 <td align="center">Single</td>
-<td align="center">4096</td>
-<td align="center">72.0</td>
+<td align="center">Yes</td>
+<td align="center">88.99</td>
 
 </tr>
 </tbody></table>
