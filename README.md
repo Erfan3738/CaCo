@@ -125,35 +125,21 @@ python linear.py  -a resnet50 --lr 0.025 --batch-size 4096 \
 <th valign="bottom">Crop</th>
 <th valign="bottom">Batch<br/>Size</th>
 <th valign="bottom">CaCo<br/>top-1 acc.</th>
-<th valign="bottom">Model<br/>Link</th>
+
 <!-- TABLE BODY -->
 <tr><td align="left">ResNet-50</td>
 <td align="center">200</td>
 <td align="center">Single</td>
 <td align="center">1024</td>
 <td align="center">71.3</td>
-<td align="center"><a href="https://purdue0-my.sharepoint.com/:u:/g/personal/wang3702_purdue_edu/EcqhVUwoVOVJvxShvDXwF9oBs1xqrXe0_Y23NZ7guiGMlQ?e=FzmRzG">model</a></td>
+
 </tr>
 <tr><td align="left">ResNet-50</td>
 <td align="center">200</td>
 <td align="center">Single</td>
 <td align="center">4096</td>
 <td align="center">72.0</td>
-<td align="center"><a href="https://purdue0-my.sharepoint.com/:u:/g/personal/wang3702_purdue_edu/ETuGL8BXTz9PqZ23NGfyDJIBBQZcj38CVCxkpEC-FDOjBw?e=iTRMeW">model</a></td>
-</tr>
-<tr><td align="left">ResNet-50</td>
-<td align="center">800</td>
-<td align="center">Single</td>
-<td align="center">4096</td>
-<td align="center">75.3</td>
-<td align="center">None</td>
-</tr>
-<tr><td align="left">ResNet-50</td>
-<td align="center">800</td>
-<td align="center">Multi</td>
-<td align="center">2048</td>
-<td align="center">75.7</td>
-<td align="center"><a href="https://purdue0-my.sharepoint.com/:u:/g/personal/wang3702_purdue_edu/EZp5gwlcV4xFn6ir0XVsjFMBzAYIpsOI_AGvNRKeRfCtUw?e=sLpDni">model</a></td>
+
 </tr>
 </tbody></table>
 
