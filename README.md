@@ -107,35 +107,35 @@ Here we should change [master_ip] to the IP of the 1st node, also we should adju
 We believe further increase the batch size to 4096 can increase the performance.
 
 ### Linear Classification
-With a pre-trained model, we can easily evaluate its performance on ImageNet with:
+With a pre-trained model, we can easily evaluate its performance on desired dataset with:
 ```
-python linear.py  -a resnet50 --lr 0.025 --batch-size 4096 \
+python linear.py  -a resnet50 --lr 0.25 --batch-size 512 \
   --pretrained [your checkpoint path] \
   --dist-url 'tcp://localhost:10001' --multiprocessing-distributed \
-  --world-size 1 --rank 0 --data [imagenet path]
+  --world-size 1 --rank 0 --data [dataset path]
 ```
 
 
-### Linear Performance:
+### Performance:
 <table><tbody>
 <!-- START TABLE -->
 <!-- TABLE HEADER -->
 <th valign="bottom">pre-train<br/>network</th>
 <th valign="bottom">pre-train<br/>epochs</th>
 <th valign="bottom">Crop</th>
-<th valign="bottom">Batch<br/>Size</th>
-<th valign="bottom">CaCo<br/>top-1 acc.</th>
+<th valign="bottom">Symmetrical<br/>Loss</th>
+<th valign="bottom">CaCo<br/>KNN acc.</th>
 
 <!-- TABLE BODY -->
-<tr><td align="left">ResNet-50</td>
-<td align="center">200</td>
+<tr><td align="left">ResNet-18</td>
+<td align="center">800</td>
 <td align="center">Single</td>
 <td align="center">1024</td>
 <td align="center">71.3</td>
 
 </tr>
-<tr><td align="left">ResNet-50</td>
-<td align="center">200</td>
+<tr><td align="left">ResNet-18</td>
+<td align="center">800</td>
 <td align="center">Single</td>
 <td align="center">4096</td>
 <td align="center">72.0</td>
