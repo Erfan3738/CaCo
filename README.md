@@ -76,10 +76,11 @@ conda deactivate(If you want to exit)
 
 ## Usage
 
-### 1. Single-Crop Unsupervised Pre-Training
+### Single-Crop Unsupervised Pre-Training
 
 ```
-python3 main.py --type=0 --lr=0.3 --lr_final=0.003 --memory_lr=3.0 --memory_lr_final=3.0 --cluster=65536 --moco_t=0.08 --mem_t=0.08 --data=datasets/imagenet --dist_url=tcp://localhost:10001 --batch_size=1024 --wd=1.5e-6 --mem_wd=0 --moco_dim=256 --moco_m=0.99 --moco_m_decay=1 --mlp_dim=2048 --epochs=200 --warmup_epochs=10 --nodes_num=1 --workers=32 --world_size 1 --rank=0 --mem_momentum=0.9 --ad_init=1 --knn_batch_size=1024 --multi_crop=0 --knn_freq=10
+python3 main.py --type=0 --lr=0.75 --lr_final=0.003 --memory_lr=3.0 --memory_lr_final=3.0 --cluster=8192 --mem_t=0.1 --data= [path] --dist_url=tcp://localhost:10001 --batch_size=512 --wd=1.1e-4 --mem_wd=0 --moco_dim=128 --moco_m=0.99 --moco_t=0.1 --mlp_dim=512 --dataset stl10 --epochs=800 --warmup_epochs=0 --nodes_num=1 --workers=4 --cos=2 --gpu=0 --arch resnet18 --world_size 1 --moco_m_decay=1 --multiprocessing_distributed=0 --rank=0 --mem_momentum=0.9 --ad_init=1 --knn_batch_size=512 --multi_crop=0 --knn_freq=5 --knn_neighbor=5
+
 ```
 
 
