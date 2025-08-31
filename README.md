@@ -20,6 +20,8 @@ This is a modified version of original CaCo code with following changes:
 
 5- Added the option to simulate the behavior of multiple GPUs using split batch normalization.
 
+6- Added "batch_shuffle_single_gpu" to shuffle queries and make use of shuffleBN on single gpu ( must be used with splitbatchnorm)
+
 CaCo is a contrastive-learning based self-supervised learning methods, which is published in IEEE-T-PAMI.
 
 Copyright (C) 2022 Xiao Wang, Yuhang Huang, Dan Zeng, Guo-Jun Qi
