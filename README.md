@@ -87,7 +87,7 @@ python3 main.py --type=0 --lr=0.75 --lr_final=0.003 --memory_lr=3.0 --memory_lr_
 ### Linear Classification
 With a pre-trained model, we can easily evaluate its performance on desired dataset with:
 ```
-python linear.py  -a resnet50 --lr 0.25 --batch-size 512 \
+python linear.py  -a resnet18 --lr 0.25 --batch-size 512 \
   --pretrained [your checkpoint path] \
   --dist-url 'tcp://localhost:10001' --multiprocessing-distributed \
   --world-size 1 --rank 0 --data [dataset path]
